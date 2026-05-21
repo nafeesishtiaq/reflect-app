@@ -19,7 +19,8 @@ export default function CreateGoal() {
   const [deadline, setDeadline] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [reminder, setReminder] = useState("daily");
-
+  const [description, setDescription] = useState("");
+  
   const addGoal = useGoalStore((state) => state.addGoal);
 
   const router = useRouter();
@@ -37,10 +38,13 @@ export default function CreateGoal() {
     addGoal({
       id: Date.now().toString(),
       title: title.trim(),
+      description: description.trim(),
       message: message.trim(),
       deadline,
       reminder,
       createdAt: new Date(),
+      status: "active",
+      checkIns: [],
     });
     router.back();
   }
@@ -52,6 +56,12 @@ export default function CreateGoal() {
         placeholder="e.g. Spend more time with my mom"
         value={title}
         onChangeText={setTitle}
+      />
+      <Text>Describe your goal</Text>
+      <TextInput
+        placeholder="Describe your goal..."
+        value={description}
+        onChangeText={setDescription}
       />
       <Text>Write a message to your future self</Text>
       <TextInput
