@@ -19,6 +19,7 @@ export default function CreateGoal() {
   const [deadline, setDeadline] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [reminder, setReminder] = useState("daily");
+  const [reminderInterval, setReminderInterval] = useState("");
   const [description, setDescription] = useState("");
   
   const addGoal = useGoalStore((state) => state.addGoal);
@@ -34,6 +35,10 @@ export default function CreateGoal() {
       Alert.alert("Missing message", "Please write a message to yourself.");
       return;
     }
+    if (reminder === "custom" && !reminderInterval.trim()) {
+      Alert.alert("Missing reminder", "Please enter the number of days.");
+      return;
+    }
 
     addGoal({
       id: Date.now().toString(),
@@ -42,6 +47,7 @@ export default function CreateGoal() {
       message: message.trim(),
       deadline,
       reminder,
+      reminderInterval: reminder === "custom" ? Number(reminderInterval) : undefined,
       createdAt: new Date(),
       status: "active",
       checkIns: [],
@@ -96,10 +102,18 @@ export default function CreateGoal() {
         >
           <Picker.Item label="Daily" value="daily" />
           <Picker.Item label="Weekly" value="weekly" />
-          <Picker.Item label="None" value="none" />
+          <Picker.Item label="Monthly" value="monthly" />
+          <Picker.Item label="Custom" value="custom" />
         </Picker>
       </View>
-
+      {reminder === "custom" && (
+        <TextInput
+          placeholder="Number of days"
+          keyboardType="numeric"
+          value={reminderInterval}
+          onChangeText={setReminderInterval}
+        />
+      )}
       <TouchableOpacity onPress={handleSubmit}>
         <Text>Create Goal</Text>
       </TouchableOpacity>

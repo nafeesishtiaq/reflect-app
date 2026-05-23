@@ -8,6 +8,7 @@ export interface Goal {
   message: string;
   deadline: Date;
   reminder: string;
+  reminderInterval?: number;
   createdAt: Date;
   status: "active" | "completed";
   completedAt?: Date;
