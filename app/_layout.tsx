@@ -30,10 +30,6 @@ export default function RootLayout(){
         name="goal/[id]/goalCompleted"
         options={{ headerShown: false }}
       />
-      <Stack.Screen
-        name="goal/[id]/goalCompleted"
-        options={{ headerShown: false }}
-      />
     </Stack>
   );
 }

@@ -48,8 +48,8 @@ export default function CheckIn() {
   }
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 20, gap: 24 }}>
-      {/* Motivation message — re-read before checking in */}
+    <ScrollView>
+      {/* Motivation message*/}
       <View>
         <Text>A message from past you</Text>
         <Text>"{goal.message}"</Text>
@@ -63,16 +63,7 @@ export default function CheckIn() {
             <TouchableOpacity
               key={n}
               onPress={() => setProgress(n)}
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: 22,
-                borderWidth: 2,
-                borderColor: progress === n ? "#000" : "#ccc",
-                backgroundColor: progress === n ? "#000" : "transparent",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+             
             >
               <Text style={{ color: progress === n ? "#fff" : "#000" }}>
                 {n}
@@ -93,14 +84,7 @@ export default function CheckIn() {
           multiline
           numberOfLines={6}
           textAlignVertical="top"
-          style={{
-            borderWidth: 1,
-            borderColor: "#ccc",
-            borderRadius: 8,
-            padding: 12,
-            marginTop: 8,
-            minHeight: 120,
-          }}
+         
         />
       </View>
 
