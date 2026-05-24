@@ -1,4 +1,5 @@
 import { useGoalStore } from "@/src/store/goalStore";
+import { scheduleGoalNotification } from "@/src/utils/notifications";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
@@ -21,12 +22,11 @@ export default function CreateGoal() {
   const [reminder, setReminder] = useState("daily");
   const [reminderInterval, setReminderInterval] = useState("");
   const [description, setDescription] = useState("");
-  
   const addGoal = useGoalStore((state) => state.addGoal);
-
+  const updateGoal = useGoalStore((state) => state.updateGoal);
   const router = useRouter();
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!title.trim()) {
       Alert.alert("Missing title", "Please enter a goal title.");
       return;
@@ -39,19 +39,28 @@ export default function CreateGoal() {
       Alert.alert("Missing reminder", "Please enter the number of days.");
       return;
     }
-
+    const id = Date.now().toString();
     addGoal({
-      id: Date.now().toString(),
+      id,
       title: title.trim(),
       description: description.trim(),
       message: message.trim(),
       deadline,
       reminder,
-      reminderInterval: reminder === "custom" ? Number(reminderInterval) : undefined,
+      reminderInterval:
+        reminder === "custom" ? Number(reminderInterval) : undefined,
       createdAt: new Date(),
       status: "active",
       checkIns: [],
     });
+
+    const notificationId = await scheduleGoalNotification(
+      id,
+      title.trim(),
+      reminder,
+      reminder === "custom" ? Number(reminderInterval) : undefined
+    );
+    updateGoal(id, { notificationId });
     router.back();
   }
 

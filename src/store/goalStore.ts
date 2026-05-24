@@ -13,6 +13,7 @@ export interface Goal {
   status: "active" | "completed";
   completedAt?: Date;
   checkIns: CheckIn[];
+  notificationId?: string;
 }
 
 export interface CheckIn {
@@ -28,6 +29,7 @@ interface GoalStore {
   deleteGoal: (id: string) => void;
   completeGoal: (id: string) => void;
   addCheckIn: (goalId: string, checkIn: CheckIn) => void;
+  updateGoal: (id: string, data: Partial<Goal>) => void;
 }
 
 export const useGoalStore = create<GoalStore>()(
@@ -50,6 +52,10 @@ export const useGoalStore = create<GoalStore>()(
           goals: state.goals.map((g) =>
             g.id === goalId ? { ...g, checkIns: [...g.checkIns, checkIn] } : g
           ),
+        })),
+      updateGoal: (id, data) =>
+        set((state) => ({
+          goals: state.goals.map((g) => (g.id === id ? { ...g, ...data } : g)),
         })),
     }),
     {

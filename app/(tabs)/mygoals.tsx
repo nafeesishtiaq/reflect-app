@@ -2,6 +2,9 @@ import { useGoalStore } from "@/src/store/goalStore";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {View, FlatList, TouchableOpacity, Text} from "react-native";
+import { cancelGoalNotification } from "@/src/utils/notifications";
+import { Goal } from "@/src/store/goalStore";
+
 export default function MyGoals(){
   const router = useRouter();
   const goals = useGoalStore((state) => state.goals);
@@ -9,6 +12,13 @@ export default function MyGoals(){
   const [activeTab, setActiveTab] = useState("active");
 
   const filtered = goals.filter((g) => g.status === activeTab);
+
+  async function handleDelete(item: Goal) {
+    if (item.notificationId) {
+      await cancelGoalNotification(item.notificationId);
+    }
+    deleteGoal(item.id);
+  }
   return (
     <View>
       <View>
@@ -32,11 +42,9 @@ export default function MyGoals(){
               <TouchableOpacity onPress={() => router.push(`/goal/${item.id}`)}>
                 <Text>{item.title}</Text>
                 <Text>{item.description}</Text>
-                <Text>
-                  Due: {new Date(item.deadline).toDateString()}
-                </Text>
+                <Text>Due: {new Date(item.deadline).toDateString()}</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => deleteGoal(item.id)}>
+              <TouchableOpacity onPress={() => handleDelete(item)}>
                 <Text>Delete</Text>
               </TouchableOpacity>
             </View>
