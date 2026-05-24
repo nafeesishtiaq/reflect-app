@@ -26,6 +26,14 @@ export default function RootLayout(){
       <Stack.Screen name="CreateGoal" options={{ title: "New Goal" }} />
       <Stack.Screen name="goal/[id]" options={{ title: "Goal" }} />
       <Stack.Screen name="goal/[id]/checkin" options={{ title: "Check In" }} />
+      <Stack.Screen
+        name="goal/[id]/goalCompleted"
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="goal/[id]/goalCompleted"
+        options={{ headerShown: false }}
+      />
     </Stack>
   );
 }

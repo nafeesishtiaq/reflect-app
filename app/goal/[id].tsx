@@ -6,7 +6,7 @@ export default function GoalDetail() {
   const { id } = useLocalSearchParams();
   const goal = useGoalStore((state) => state.goals.find((g) => g.id === id));
   const router = useRouter();
-
+  const completeGoal = useGoalStore((state) => state.completeGoal);
   if (!goal) {
     return (
       <View>
@@ -26,13 +26,23 @@ export default function GoalDetail() {
       <TouchableOpacity onPress={() => router.push(`/goal/${goal.id}/checkin`)}>
         <Text>Check In</Text>
       </TouchableOpacity>
+      {goal.status === "active" && (
+        <TouchableOpacity
+          onPress={() => {
+            completeGoal(goal.id);
+            router.push(`/goal/${goal.id}/goalCompleted`);
+          }}
+        >
+          <Text>Mark Complete</Text>
+        </TouchableOpacity>
+      )}
       {/* Check-ins timeline */}
       {goal.checkIns.length === 0 ? (
         <Text>No check-ins yet.</Text>
       ) : (
         goal.checkIns
           .slice()
-          .reverse() 
+          .reverse()
           .map((checkIn) => (
             <View key={checkIn.id}>
               <Text>{new Date(checkIn.date).toDateString()}</Text>
