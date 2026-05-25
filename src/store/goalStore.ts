@@ -14,6 +14,7 @@ export interface Goal {
   completedAt?: Date;
   checkIns: CheckIn[];
   notificationId?: string;
+  tasks: Task[];
 }
 
 export interface CheckIn {
@@ -23,6 +24,13 @@ export interface CheckIn {
   journal: string;
 }
 
+export interface Task {
+  id: string;
+  title: string;
+  completed: boolean;
+  dueDate: Date;
+}
+
 interface GoalStore {
   goals: Goal[];
   addGoal: (goal: Goal) => void;
@@ -30,6 +38,9 @@ interface GoalStore {
   completeGoal: (id: string) => void;
   addCheckIn: (goalId: string, checkIn: CheckIn) => void;
   updateGoal: (id: string, data: Partial<Goal>) => void;
+  addTask: (goalId: string, task: Task) => void;
+  toggleTask: (goalId: string, taskId: string) => void;
+  deleteTask: (goalId: string, taskId: string) => void;
 }
 
 export const useGoalStore = create<GoalStore>()(
@@ -56,6 +67,33 @@ export const useGoalStore = create<GoalStore>()(
       updateGoal: (id, data) =>
         set((state) => ({
           goals: state.goals.map((g) => (g.id === id ? { ...g, ...data } : g)),
+        })),
+      addTask: (goalId, task) =>
+        set((state) => ({
+          goals: state.goals.map((g) =>
+            g.id === goalId ? { ...g, tasks: [...g.tasks, task] } : g
+          ),
+        })),
+      toggleTask: (goalId, taskId) =>
+        set((state) => ({
+          goals: state.goals.map((g) =>
+            g.id === goalId
+              ? {
+                  ...g,
+                  tasks: g.tasks.map((t) =>
+                    t.id === taskId ? { ...t, completed: !t.completed } : t
+                  ),
+                }
+              : g
+          ),
+        })),
+      deleteTask: (goalId, taskId) =>
+        set((state) => ({
+          goals: state.goals.map((g) =>
+            g.id === goalId
+              ? { ...g, tasks: g.tasks.filter((t) => t.id !== taskId) }
+              : g
+          ),
         })),
     }),
     {

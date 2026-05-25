@@ -52,6 +52,7 @@ export default function CreateGoal() {
       createdAt: new Date(),
       status: "active",
       checkIns: [],
+      tasks: [],
     });
 
     const notificationId = await scheduleGoalNotification(
