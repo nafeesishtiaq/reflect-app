@@ -62,7 +62,7 @@ export default function CreateGoal() {
       reminder === "custom" ? Number(reminderInterval) : undefined
     );
     updateGoal(id, { notificationId });
-    router.back();
+    router.replace(`/goal/${id}`);
   }
 
   return (
