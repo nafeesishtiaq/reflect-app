@@ -15,6 +15,7 @@ export interface Goal {
   checkIns: CheckIn[];
   notificationId?: string;
   tasks: Task[];
+  focusSessions: FocusSession[];
 }
 
 export interface CheckIn {
@@ -31,8 +32,17 @@ export interface Task {
   dueDate: Date;
 }
 
+export interface FocusSession {
+  id: string;
+  date: Date;
+  duration: number;
+  goalId?: string; // undefined = free session
+  label?: string;
+}
+
 interface GoalStore {
   goals: Goal[];
+  freeSessions: FocusSession[];
   addGoal: (goal: Goal) => void;
   deleteGoal: (id: string) => void;
   completeGoal: (id: string) => void;
@@ -41,12 +51,14 @@ interface GoalStore {
   addTask: (goalId: string, task: Task) => void;
   toggleTask: (goalId: string, taskId: string) => void;
   deleteTask: (goalId: string, taskId: string) => void;
+  addFocusSession: (session: FocusSession) => void;
 }
 
 export const useGoalStore = create<GoalStore>()(
   persist(
     (set) => ({
       goals: [],
+      freeSessions: [],
       addGoal: (goal) => set((state) => ({ goals: [...state.goals, goal] })),
       deleteGoal: (id) =>
         set((state) => ({ goals: state.goals.filter((g) => g.id !== id) })),
@@ -95,6 +107,22 @@ export const useGoalStore = create<GoalStore>()(
               : g
           ),
         })),
+      addFocusSession: (session) =>
+        set((state) => {
+          if (session.goalId) {
+            return {
+              goals: state.goals.map((g) =>
+                g.id === session.goalId
+                  ? {
+                      ...g,
+                      focusSessions: [...(g.focusSessions ?? []), session],
+                    }
+                  : g
+              ),
+            };
+          }
+          return { freeSessions: [...state.freeSessions, session] };
+        }),
     }),
     {
       name: "goal-storage",
