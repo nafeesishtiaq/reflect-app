@@ -20,7 +20,8 @@ const STROKE = 10;
 const RADIUS = (RING_SIZE - STROKE) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
-const TIME_OPTIONS = Array.from({ length: 24 }, (_, i) => (i + 1) * 5);
+const TIME_OPTIONS: number[] = [];
+for (let i = 1; i <= 24; i++) TIME_OPTIONS.push(i * 5);
 const OTHERS = ["Study", "Work", "Other"];
 
 function formatTime(seconds: number) {
