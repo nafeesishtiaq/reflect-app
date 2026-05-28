@@ -7,10 +7,12 @@ import { useState } from "react";
 import {
   Alert,
   FlatList,
+  Modal,
   StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 
@@ -24,12 +26,12 @@ function daysLeft(deadline: Date) {
 function GoalCard({
   item,
   onPress,
-  onDelete,
+  onMenuOpen,
   isCompleted,
 }: {
   item: Goal;
   onPress: () => void;
-  onDelete: () => void;
+  onMenuOpen: () => void;
   isCompleted: boolean;
 }) {
   const completedTasks = item.tasks.filter((t) => t.completed).length;
@@ -43,24 +45,21 @@ function GoalCard({
       onPress={onPress}
       activeOpacity={0.75}
     >
-      {/* Left accent bar */}
       <View style={[styles.accentBar, isCompleted && styles.accentBarDone]} />
 
       <View style={styles.cardBody}>
-        {/* Title row */}
         <View style={styles.titleRow}>
           <Text style={styles.goalTitle} numberOfLines={1}>
             {item.title}
           </Text>
           <TouchableOpacity
-            onPress={onDelete}
+            onPress={onMenuOpen}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Ionicons name="trash-outline" size={16} color="#333" />
+            <Ionicons name="ellipsis-vertical" size={16} color="#555" />
           </TouchableOpacity>
         </View>
 
-        {/* Deadline */}
         <Text style={styles.deadline}>
           {isCompleted
             ? `Completed · due ${new Date(item.deadline)
@@ -73,7 +72,6 @@ function GoalCard({
                 .slice(4, 10)}`}
         </Text>
 
-        {/* Stats */}
         <View style={styles.statsRow}>
           <View style={styles.stat}>
             <Ionicons
@@ -107,27 +105,36 @@ export default function MyGoals() {
   const goals = useGoalStore((state) => state.goals);
   const deleteGoal = useGoalStore((state) => state.deleteGoal);
   const [activeTab, setActiveTab] = useState<"active" | "completed">("active");
+  const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
 
   const filtered = goals.filter((g) => g.status === activeTab);
 
-  async function handleDelete(item: Goal) {
+  async function handleDelete() {
+    if (!selectedGoal) return;
+    setSelectedGoal(null);
     Alert.alert(
       "Delete Goal",
-      `Delete "${item.title}"? This can't be undone.`,
+      `Delete "${selectedGoal.title}"? This can't be undone.`,
       [
         { text: "Cancel", style: "cancel" },
         {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
-            if (item.notificationId) {
-              await cancelGoalNotification(item.notificationId);
+            if (selectedGoal.notificationId) {
+              await cancelGoalNotification(selectedGoal.notificationId);
             }
-            deleteGoal(item.id);
+            deleteGoal(selectedGoal.id);
           },
         },
       ]
     );
+  }
+
+  function handleEdit() {
+    if (!selectedGoal) return;
+    setSelectedGoal(null);
+    router.push(`/EditGoal?id=${selectedGoal.id}`);
   }
 
   return (
@@ -217,11 +224,43 @@ export default function MyGoals() {
               item={item}
               isCompleted={activeTab === "completed"}
               onPress={() => router.push(`/goal/${item.id}`)}
-              onDelete={() => handleDelete(item)}
+              onMenuOpen={() => setSelectedGoal(item)}
             />
           )}
         />
       )}
+
+      {/* Bottom Sheet */}
+      <Modal
+        visible={!!selectedGoal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setSelectedGoal(null)}
+      >
+        <TouchableWithoutFeedback onPress={() => setSelectedGoal(null)}>
+          <View style={styles.backdrop} />
+        </TouchableWithoutFeedback>
+
+        <View style={styles.sheet}>
+          <View style={styles.sheetHandle} />
+          <Text style={styles.sheetTitle} numberOfLines={1}>
+            {selectedGoal?.title}
+          </Text>
+
+          <TouchableOpacity style={styles.sheetItem} onPress={handleEdit}>
+            <Ionicons name="pencil-outline" size={20} color="#ccc" />
+            <Text style={styles.sheetItemText}>Edit Goal</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.sheetItem} onPress={handleDelete}>
+            <Ionicons name="trash-outline" size={20} color="#ff4444" />
+            <Text style={[styles.sheetItemText, { color: "#ff4444" }]}>
+              Delete Goal
+            </Text>
+          </TouchableOpacity>
+
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -372,5 +411,46 @@ const styles = StyleSheet.create({
     color: ACCENT,
     fontSize: 14,
     marginTop: 4,
+  },
+  backdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  sheet: {
+    backgroundColor: "#1A1A1A",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+    paddingTop: 12,
+  },
+  sheetHandle: {
+    width: 36,
+    height: 4,
+    backgroundColor: "#333",
+    borderRadius: 2,
+    alignSelf: "center",
+    marginBottom: 16,
+  },
+  sheetTitle: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#555",
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    marginBottom: 16,
+  },
+  sheetItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    paddingVertical: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#222",
+  },
+  sheetItemText: {
+    fontSize: 16,
+    color: "#ccc",
+    fontWeight: "500",
   },
 });
