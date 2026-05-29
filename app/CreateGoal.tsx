@@ -65,9 +65,9 @@ async function handleSubmit() {
     message: form.message.trim(),
     deadline: form.deadline,
     reminder: form.reminder,
-    reminderInterval:
+    reminder_interval:
       form.reminder === "custom" ? Number(form.reminderInterval) : undefined,
-    createdAt: new Date(),
+    created_at: new Date(),
     status: "active",
     checkIns: [],
     tasks: [],
@@ -81,7 +81,7 @@ async function handleSubmit() {
   }
 
   // Use the real UUID returned by Supabase for notifications and navigation
-  const notificationId = await scheduleGoalNotification(
+  const notification_id = await scheduleGoalNotification(
     saved.id,
     form.title.trim(),
     form.reminder,
@@ -89,7 +89,7 @@ async function handleSubmit() {
   );
 
   // Save the notification id back to this goal in Supabase
-  await updateGoal(saved.id, { notificationId });
+  await updateGoal(saved.id, { notification_id });
 
   router.replace(`/goal/${saved.id}`);
 }

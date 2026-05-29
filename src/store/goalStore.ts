@@ -8,35 +8,33 @@ export interface Goal {
   message: string;
   deadline: Date;
   reminder: string;
-  reminderInterval?: number;
-  createdAt: Date;
+  reminder_interval?: number;
+  created_at: Date;
   status: "active" | "completed";
-  completedAt?: Date;
+  completed_at?: Date;
   checkIns: CheckIn[];
-  notificationId?: string;
+  notification_id?: string;
   tasks: Task[];
   focusSessions: FocusSession[];
 }
-
 export interface CheckIn {
   id: string;
   date: Date;
   progress: 1 | 2 | 3 | 4 | 5;
   journal: string;
 }
-
 export interface Task {
   id: string;
   title: string;
   completed: boolean;
-  dueDate: Date;
+  due_date: Date;
 }
 
 export interface FocusSession {
   id: string;
   date: Date;
   duration: number;
-  goalId?: string;
+  goal_id?: string;
   label?: string;
 }
 
@@ -80,8 +78,8 @@ export const useGoalStore = create<GoalStore>()((set) => ({
         message: goal.message,
         deadline: goal.deadline,
         reminder: goal.reminder,
-        reminder_interval: goal.reminderInterval,
-        user_id: "temp-user", // replaced with real user id after auth
+        reminder_interval: goal.reminder_interval,
+        user_id: "temp-user", 
       })
       .select()
       .single();
@@ -119,7 +117,7 @@ export const useGoalStore = create<GoalStore>()((set) => ({
       set((state) => ({
         goals: state.goals.map((g) =>
           g.id === id
-            ? { ...g, status: "completed", completedAt: new Date() }
+            ? { ...g, status: "completed", completed_at: new Date() }
             : g
         ),
       }));
@@ -161,7 +159,7 @@ export const useGoalStore = create<GoalStore>()((set) => ({
   addTask: async (goalId, task) => {
     const { data, error } = await supabase
       .from("tasks")
-      .insert({ goal_id: goalId, title: task.title, due_date: task.dueDate })
+      .insert({ goal_id: goalId, title: task.title, due_date: task.due_date })
       .select()
       .single();
     if (error) console.error("addTask error:", error);
@@ -221,7 +219,7 @@ export const useGoalStore = create<GoalStore>()((set) => ({
     const { data, error } = await supabase
       .from("focus_sessions")
       .insert({
-        goal_id: session.goalId ?? null,
+        goal_id: session.goal_id ?? null,
         user_id: "temp-user", // replaced with real user id after auth
         duration: session.duration,
         label: session.label,
@@ -234,10 +232,10 @@ export const useGoalStore = create<GoalStore>()((set) => ({
       return;
     }
 
-    if (session.goalId) {
+    if (session.goal_id) {
       set((state) => ({
         goals: state.goals.map((g) =>
-          g.id === session.goalId
+          g.id === session.goal_id
             ? {
                 ...g,
                 focusSessions: [

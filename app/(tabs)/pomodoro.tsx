@@ -107,10 +107,9 @@ export default function Pomodoro() {
     const mins = Math.round(elapsed / 60);
     if (mins > 0) {
       addFocusSession({
-        id: Date.now().toString(),
         date: start,
         duration: mins,
-        goalId: selectedGoalIdRef.current ?? undefined,
+        goal_id: selectedGoalIdRef.current ?? undefined,
         label: selectedGoalIdRef.current
           ? undefined
           : selectedOtherRef.current ?? undefined,

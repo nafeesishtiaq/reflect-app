@@ -50,7 +50,7 @@ export default function EditGoal() {
         message: goal.message ?? "",
         deadline: new Date(goal.deadline),
         reminder: goal.reminder ?? "daily",
-        reminderInterval: goal.reminderInterval?.toString() ?? "",
+        reminderInterval: goal.reminder_interval?.toString() ?? "",
       });
     }
   }, [goal]);
@@ -76,10 +76,10 @@ export default function EditGoal() {
     if (!goal) return;
 
     // Cancel old notification and reschedule
-    if (goal.notificationId) {
-      await cancelGoalNotification(goal.notificationId);
+    if (goal.notification_id) {
+      await cancelGoalNotification(goal.notification_id);
     }
-    const notificationId = await scheduleGoalNotification(
+    const notification_id = await scheduleGoalNotification(
       goal.id,
       form.title.trim(),
       form.reminder,
@@ -92,9 +92,9 @@ export default function EditGoal() {
       message: form.message.trim(),
       deadline: form.deadline,
       reminder: form.reminder,
-      reminderInterval:
+      reminder_interval:
         form.reminder === "custom" ? Number(form.reminderInterval) : undefined,
-      notificationId,
+      notification_id,
     });
 
     router.back();

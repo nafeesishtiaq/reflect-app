@@ -40,13 +40,12 @@ export default function GoalDetail() {
   const [taskDate, setTaskDate] = useState(new Date());
   const [showTaskDatePicker, setShowTaskDatePicker] = useState(false);
 
-  function handleAddTask() {
+  async function handleAddTask() {
     if (!taskTitle.trim() || !goal) return;
-    addTask(goal.id, {
-      id: Date.now().toString(),
+    await addTask(goal.id, {
       title: taskTitle.trim(),
       completed: false,
-      dueDate: taskDate,
+      due_date: taskDate,
     });
     setTaskTitle("");
     setTaskDate(new Date());
@@ -229,7 +228,7 @@ export default function GoalDetail() {
                     {task.title}
                   </Text>
                   <Text style={styles.taskDate}>
-                    {new Date(task.dueDate).toDateString().slice(4, 10)}
+                    {new Date(task.due_date).toDateString().slice(4, 10)}
                   </Text>
                 </View>
               </TouchableOpacity>

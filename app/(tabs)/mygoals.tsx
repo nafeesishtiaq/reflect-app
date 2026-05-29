@@ -121,8 +121,8 @@ export default function MyGoals() {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
-            if (selectedGoal.notificationId) {
-              await cancelGoalNotification(selectedGoal.notificationId);
+            if (selectedGoal.notification_id) {
+              await cancelGoalNotification(selectedGoal.notification_id);
             }
             deleteGoal(selectedGoal.id);
           },

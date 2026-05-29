@@ -20,7 +20,7 @@ export default function Index() {
     .flatMap((g) => g.tasks.map((t) => ({ ...t, goalTitle: g.title })))
     .filter((t) => !t.completed)
     .sort(
-      (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+      (a, b) => new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
     )
     .slice(0, 5);
 
@@ -180,7 +180,7 @@ export default function Index() {
                   <Text style={styles.taskGoal}>{task.goalTitle}</Text>
                 </View>
                 <Text style={styles.taskDate}>
-                  {new Date(task.dueDate).toDateString().slice(4, 10)}
+                  {new Date(task.due_date).toDateString().slice(4, 10)}
                 </Text>
               </View>
             ))
