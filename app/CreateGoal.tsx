@@ -44,47 +44,55 @@ export default function CreateGoal() {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  async function handleSubmit() {
-    if (!form.title.trim()) {
-      Alert.alert("Missing title", "Please enter a goal title.");
-      return;
-    }
-    if (!form.message.trim()) {
-      Alert.alert("Missing message", "Please write a message to yourself.");
-      return;
-    }
-    if (form.reminder === "custom" && !form.reminderInterval.trim()) {
-      Alert.alert("Missing reminder", "Please enter the number of days.");
-      return;
-    }
-
-    const id = Date.now().toString();
-    addGoal({
-      id,
-      title: form.title.trim(),
-      description: form.description.trim(),
-      message: form.message.trim(),
-      deadline: form.deadline,
-      reminder: form.reminder,
-      reminderInterval:
-        form.reminder === "custom" ? Number(form.reminderInterval) : undefined,
-      createdAt: new Date(),
-      status: "active",
-      checkIns: [],
-      tasks: [],
-      focusSessions: [],
-    });
-
-    const notificationId = await scheduleGoalNotification(
-      id,
-      form.title.trim(),
-      form.reminder,
-      form.reminder === "custom" ? Number(form.reminderInterval) : undefined
-    );
-    updateGoal(id, { notificationId });
-    router.replace(`/goal/${id}`);
+async function handleSubmit() {
+  if (!form.title.trim()) {
+    Alert.alert("Missing title", "Please enter a goal title.");
+    return;
+  }
+  if (!form.message.trim()) {
+    Alert.alert("Missing message", "Please write a message to yourself.");
+    return;
+  }
+  if (form.reminder === "custom" && !form.reminderInterval.trim()) {
+    Alert.alert("Missing reminder", "Please enter the number of days.");
+    return;
   }
 
+  // addGoal now returns the saved goal with the real UUID from Supabase
+  const saved = await addGoal({
+    title: form.title.trim(),
+    description: form.description.trim(),
+    message: form.message.trim(),
+    deadline: form.deadline,
+    reminder: form.reminder,
+    reminderInterval:
+      form.reminder === "custom" ? Number(form.reminderInterval) : undefined,
+    createdAt: new Date(),
+    status: "active",
+    checkIns: [],
+    tasks: [],
+    focusSessions: [],
+  });
+
+  // If Supabase failed to save, don't proceed
+  if (!saved) {
+    Alert.alert("Error", "Failed to create goal. Please try again.");
+    return;
+  }
+
+  // Use the real UUID returned by Supabase for notifications and navigation
+  const notificationId = await scheduleGoalNotification(
+    saved.id,
+    form.title.trim(),
+    form.reminder,
+    form.reminder === "custom" ? Number(form.reminderInterval) : undefined
+  );
+
+  // Save the notification id back to this goal in Supabase
+  await updateGoal(saved.id, { notificationId });
+
+  router.replace(`/goal/${saved.id}`);
+}
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
