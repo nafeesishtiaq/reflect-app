@@ -12,7 +12,7 @@ export interface Goal {
   created_at: Date;
   status: "active" | "completed";
   completed_at?: Date;
-  checkIns: CheckIn[];
+  check_ins: CheckIn[];
   notification_id?: string;
   tasks: Task[];
   focusSessions: FocusSession[];
@@ -91,7 +91,7 @@ export const useGoalStore = create<GoalStore>()((set) => ({
 
     const newGoal = {
       ...data,
-      checkIns: [],
+      check_ins: [],
       tasks: [],
       focusSessions: [],
     } as unknown as Goal;
@@ -99,7 +99,7 @@ export const useGoalStore = create<GoalStore>()((set) => ({
     return newGoal;
   },
 
-  // Deletes the goal from Supabase — cascade handles tasks/checkins/sessions automatically
+  // Deletes the goal from Supabase — cascade handles tasks/check_ins/sessions automatically
   deleteGoal: async (id) => {
     const { error } = await supabase.from("goals").delete().eq("id", id);
     if (error) console.error("deleteGoal error:", error);
@@ -139,7 +139,7 @@ export const useGoalStore = create<GoalStore>()((set) => ({
       set((state) => ({
         goals: state.goals.map((g) =>
           g.id === goalId
-            ? { ...g, checkIns: [...g.checkIns, data as unknown as CheckIn] }
+            ? { ...g, check_ins: [...g.check_ins, data as unknown as CheckIn] }
             : g
         ),
       }));

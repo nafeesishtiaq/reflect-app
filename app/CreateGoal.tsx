@@ -69,7 +69,7 @@ async function handleSubmit() {
       form.reminder === "custom" ? Number(form.reminderInterval) : undefined,
     created_at: new Date(),
     status: "active",
-    checkIns: [],
+    check_ins: [],
     tasks: [],
     focusSessions: [],
   });

@@ -61,7 +61,7 @@ export default function GoalDetail() {
 
   const completedTasks = goal.tasks.filter((t) => t.completed).length;
   const days = daysLeft(goal.deadline);
-  const sortedCheckIns = goal.checkIns
+  const sortedcheck_ins = goal.check_ins
     .slice()
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
@@ -263,16 +263,16 @@ export default function GoalDetail() {
               />
               <Text style={styles.sectionTitle}>Check-ins</Text>
             </View>
-            <Text style={styles.sectionCount}>{goal.checkIns.length}</Text>
+            <Text style={styles.sectionCount}>{goal.check_ins.length}</Text>
           </View>
 
-          {goal.checkIns.length === 0 ? (
+          {goal.check_ins.length === 0 ? (
             <Text style={styles.emptyText}>No check-ins yet.</Text>
           ) : (
-            sortedCheckIns.map((checkIn, index) => (
+            sortedcheck_ins.map((checkIn, index) => (
               <View key={checkIn.id} style={styles.checkInCard}>
                 {/* Timeline line */}
-                {index < sortedCheckIns.length - 1 && (
+                {index < sortedcheck_ins.length - 1 && (
                   <View style={styles.timelineLine} />
                 )}
                 <View style={styles.timelineDot} />

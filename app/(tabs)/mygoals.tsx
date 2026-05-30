@@ -36,7 +36,7 @@ function GoalCard({
 }) {
   const completedTasks = item.tasks.filter((t) => t.completed).length;
   const totalTasks = item.tasks.length;
-  const checkInCount = item.checkIns.length;
+  const checkInCount = item.check_ins.length;
   const days = daysLeft(item.deadline);
 
   return (

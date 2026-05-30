@@ -24,9 +24,9 @@ export default function Index() {
     )
     .slice(0, 5);
 
-  const recentCheckIns = goals
+  const recentcheck_ins = goals
     .flatMap((g) =>
-      g.checkIns.map((c) => ({ ...c, goalTitle: g.title, goalId: g.id }))
+      g.check_ins.map((c) => ({ ...c, goalTitle: g.title, goalId: g.id }))
     )
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 2);
@@ -106,7 +106,7 @@ export default function Index() {
             </View>
           ) : (
             activeGoals.map((goal, index) => {
-              const lastCheckIn = goal.checkIns
+              const lastCheckIn = goal.check_ins
                 .slice()
                 .sort(
                   (a, b) =>
@@ -201,12 +201,12 @@ export default function Index() {
             </View>
           </View>
 
-          {recentCheckIns.length === 0 ? (
+          {recentcheck_ins.length === 0 ? (
             <View style={styles.emptyCard}>
               <Text style={styles.emptyText}>No check-ins yet.</Text>
             </View>
           ) : (
-            recentCheckIns.map((checkIn) => (
+            recentcheck_ins.map((checkIn) => (
               <TouchableOpacity
                 key={checkIn.id}
                 style={styles.checkInCard}
