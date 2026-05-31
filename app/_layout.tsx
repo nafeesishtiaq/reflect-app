@@ -3,13 +3,12 @@ import { useEffect, useState } from "react";
 import * as Notifications from "expo-notifications";
 import { requestPermissions } from "@/src/utils/notifications";
 import { useGoalStore } from "@/src/store/goalStore";
-import { supabase } from "@/src/lib/supabase";
+import { AuthProvider, useAuth } from "@/src/context/AuthContext";
 
-export default function RootLayout(){
+function RootLayoutNav(){
   const router = useRouter();
   const segments = useSegments();
-  const [user, setUser] = useState<any>(null);
-  const [ready, setReady] = useState(false);
+  const { user, loading } = useAuth();
 
   const fetchGoals = useGoalStore((state) => state.fetchGoals);
 
@@ -17,17 +16,17 @@ export default function RootLayout(){
     requestPermissions();
 
     // Check if user is already logged in when app opens
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setReady(true);
-    });
+    // supabase.auth.getSession().then(({ data: { session } }) => {
+    //   setUser(session?.user ?? null);
+    //   setReady(true);
+    // });
 
     // Listen for login/logout events
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
+    // const {
+    //   data: { subscription },
+    // } = supabase.auth.onAuthStateChange((_event, session) => {
+    //   setUser(session?.user ?? null);
+    // });
 
     const sub = Notifications.addNotificationResponseReceivedListener(
       (response) => {
@@ -39,14 +38,13 @@ export default function RootLayout(){
     );
 
     return () => {
-      subscription.unsubscribe();
       sub.remove();
     };
   }, []);
 
   // Redirect based on auth state
   useEffect(() => {
-    if (!ready) return;
+    if (loading) return;
     const inAuthGroup = segments[0] === "login";
 
     if (!user && !inAuthGroup) {
@@ -57,7 +55,7 @@ export default function RootLayout(){
     } else if (user) {
       fetchGoals();
     }
-  }, [user, ready]);
+  }, [user, loading]);
 
   return (
     <Stack>
@@ -71,5 +69,12 @@ export default function RootLayout(){
         options={{ headerShown: false }}
       />
     </Stack>
+  );
+}
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
   );
 }
