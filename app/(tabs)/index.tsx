@@ -69,12 +69,6 @@ export default function Index() {
             <TouchableOpacity style={styles.iconBtn}>
               <Ionicons name="notifications-outline" size={22} color="#ccc" />
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.iconBtn}
-              onPress={() => router.push("/(tabs)/profile" as any)}
-            >
-              <Ionicons name="person-circle-outline" size={22} color="#ccc" />
-            </TouchableOpacity>
           </View>
         </View>
 
