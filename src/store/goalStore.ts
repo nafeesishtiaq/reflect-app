@@ -1,6 +1,13 @@
 import { supabase } from "@/src/lib/supabase";
 import { create } from "zustand";
 
+async function getUserId(): Promise<string | null> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  return session?.user?.id ?? null;
+}
+
 export interface Goal {
   id: string;
   title: string;
@@ -60,9 +67,16 @@ export const useGoalStore = create<GoalStore>()((set) => ({
   // Fetches all goals with their related tasks, check_ins, and focus_sessions
   // Called once when the app loads so the store is populated from Supabase
   fetchGoals: async () => {
+    const userId = await getUserId();
+    if (!userId) {
+      console.error("No user logged in");
+      return;
+    }
+
     const { data, error } = await supabase
       .from("goals")
-      .select(`*, tasks(*), check_ins(*), focus_sessions(*)`);
+      .select(`*, tasks(*), check_ins(*), focus_sessions(*)`)
+      .eq("user_id", userId);
     if (error) console.error("fetchGoals error:", error);
     else set({ goals: data as unknown as Goal[] });
   },
@@ -70,6 +84,11 @@ export const useGoalStore = create<GoalStore>()((set) => ({
   // Inserts a new goal into Supabase and adds it to local state
   // Returns the saved goal so CreateGoal.tsx can use the real UUID from Supabase
   addGoal: async (goal) => {
+    const userId = await getUserId();
+    if (!userId) {
+      console.error("No user logged in");
+      return null;
+    }
     const { data, error } = await supabase
       .from("goals")
       .insert({
@@ -79,7 +98,7 @@ export const useGoalStore = create<GoalStore>()((set) => ({
         deadline: goal.deadline,
         reminder: goal.reminder,
         reminder_interval: goal.reminder_interval,
-        user_id: "temp-user", 
+        user_id: userId,
       })
       .select()
       .single();
@@ -216,11 +235,12 @@ export const useGoalStore = create<GoalStore>()((set) => ({
   // If session has a goalId it belongs to a goal, otherwise it's a free session
   // Inserts into focus_sessions table and updates the right place in local state
   addFocusSession: async (session) => {
+    const userId = await getUserId();
     const { data, error } = await supabase
       .from("focus_sessions")
       .insert({
         goal_id: session.goal_id ?? null,
-        user_id: "temp-user", // replaced with real user id after auth
+        user_id: userId, // replaced with real user id after auth
         duration: session.duration,
         label: session.label,
       })
