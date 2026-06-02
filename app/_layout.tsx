@@ -61,7 +61,22 @@ function RootLayoutNav(){
     <Stack>
       <Stack.Screen name="login" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="CreateGoal" options={{ title: "Set Your Goal" }} />
+      <Stack.Screen
+        name="CreateGoal"
+        options={{
+          title: "Set Your Goal",
+          headerStyle: { backgroundColor: "#111111" },
+          headerTintColor: "#fff",
+        }}
+      />
+      <Stack.Screen
+        name="EditGoal"
+        options={{
+          title: "Edit Goal",
+          headerStyle: { backgroundColor: "#111111" },
+          headerTintColor: "#fff",
+        }}
+      />
       <Stack.Screen
         name="goal/[id]"
         options={{

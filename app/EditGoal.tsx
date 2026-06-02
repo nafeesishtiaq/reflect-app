@@ -115,9 +115,6 @@ export default function EditGoal() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scroll}
       >
-        <Text style={styles.heading}>Edit Goal</Text>
-        <Text style={styles.subheading}>Update your goal details.</Text>
-
         {/* Title */}
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Goal Title</Text>
@@ -232,7 +229,7 @@ const styles = StyleSheet.create({
   },
   scroll: {
     paddingHorizontal: 20,
-    paddingTop: 60,
+    paddingTop: 10,
   },
   notFound: {
     flex: 1,
@@ -243,18 +240,6 @@ const styles = StyleSheet.create({
   notFoundText: {
     color: "#555",
     fontSize: 16,
-  },
-  heading: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#fff",
-    letterSpacing: -0.5,
-    marginBottom: 6,
-  },
-  subheading: {
-    fontSize: 14,
-    color: "#555",
-    marginBottom: 32,
   },
   fieldGroup: {
     marginBottom: 24,

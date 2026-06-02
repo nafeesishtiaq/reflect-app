@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
   },
   scroll: {
     paddingHorizontal: 20,
-    paddingTop: 56,
+    paddingTop: 10,
   },
   notFound: {
     flex: 1,

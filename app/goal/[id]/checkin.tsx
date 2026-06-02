@@ -67,13 +67,6 @@ export default function CheckIn() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <StatusBar barStyle="light-content" />
-
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Check-in</Text>
-        <View style={{ width: 36 }} />
-      </View>
-
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scroll}
@@ -164,23 +157,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#111111",
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 16,
-  },
-  headerTitle: {
-    fontSize: 17,
-    fontWeight: "600",
-    color: "#fff",
-    letterSpacing: -0.3,
-  },
   scroll: {
     paddingHorizontal: 20,
-    paddingTop: 8,
+    paddingTop: 10,
   },
   goalBadge: {
     flexDirection: "row",
