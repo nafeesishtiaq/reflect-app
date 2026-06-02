@@ -52,7 +52,6 @@ export default function CheckIn() {
       return;
     }
     addCheckIn(id as string, {
-      id: Date.now().toString(),
       date: new Date(),
       progress,
       journal: journal.trim(),
@@ -71,9 +70,6 @@ export default function CheckIn() {
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={20} color="#fff" />
-        </TouchableOpacity>
         <Text style={styles.headerTitle}>Check-in</Text>
         <View style={{ width: 36 }} />
       </View>
@@ -175,14 +171,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 16,
-  },
-  backBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#1E1E1E",
-    alignItems: "center",
-    justifyContent: "center",
   },
   headerTitle: {
     fontSize: 17,

@@ -16,9 +16,9 @@ const ACCENT = "#FF6B35";
 
 export default function Profile() {
   const { user, signOut } = useAuth();
-  console.log("user metadata:", JSON.stringify(user?.user_metadata));
-  console.log("app metadata:", JSON.stringify(user?.app_metadata));
-  console.log("user:", JSON.stringify(user));
+  // console.log("user metadata:", JSON.stringify(user?.user_metadata));
+  // console.log("app metadata:", JSON.stringify(user?.app_metadata));
+  // console.log("user:", JSON.stringify(user));
   const [notifications, setNotifications] = useState(true);
 
   const name =

@@ -35,10 +35,10 @@ export default function GoalCompleted() {
 
   const completedTasks = goal.tasks.filter((t) => t.completed).length;
   const avgProgress =
-    goal.checkIns.length > 0
+    goal.check_ins.length > 0
       ? (
-          goal.checkIns.reduce((sum, c) => sum + c.progress, 0) /
-          goal.checkIns.length
+          goal.check_ins.reduce((sum, c) => sum + c.progress, 0) /
+          goal.check_ins.length
         ).toFixed(1)
       : null;
 
@@ -67,14 +67,14 @@ export default function GoalCompleted() {
           <Text style={styles.heroTitle}>You did it!</Text>
           <Text style={styles.goalTitle}>{goal.title}</Text>
           <Text style={styles.completedDate}>
-            Completed {new Date(goal.completedAt!).toDateString()}
+            Completed {new Date(goal.completed_at!).toDateString()}
           </Text>
         </View>
 
         {/* Stats row */}
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>{goal.checkIns.length}</Text>
+            <Text style={styles.statValue}>{goal.check_ins.length}</Text>
             <Text style={styles.statLabel}>Check-ins</Text>
           </View>
           <View style={[styles.statCard, styles.statCardCenter]}>
@@ -96,18 +96,18 @@ export default function GoalCompleted() {
             <Text style={styles.sectionTitle}>Your Journey</Text>
           </View>
 
-          {goal.checkIns.length === 0 ? (
+          {goal.check_ins.length === 0 ? (
             <View style={styles.emptyCard}>
               <Text style={styles.emptyText}>No reflections recorded.</Text>
             </View>
           ) : (
-            goal.checkIns
+            goal.check_ins
               .slice()
               .reverse()
               .map((checkIn, index) => (
                 <View key={checkIn.id} style={styles.timelineItem}>
                   {/* Timeline line */}
-                  {index < goal.checkIns.length - 1 && (
+                  {index < goal.check_ins.length - 1 && (
                     <View style={styles.timelineLine} />
                   )}
                   <View style={styles.timelineDot} />
