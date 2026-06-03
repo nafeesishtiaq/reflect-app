@@ -191,7 +191,7 @@ export default function Pomodoro() {
 
   const allSessions = [
     ...goals.flatMap((g) =>
-      (g.focusSessions ?? []).map((s) => ({
+      (g.focus_sessions ?? []).map((s) => ({
         ...s,
         displayLabel: g.title,
       }))

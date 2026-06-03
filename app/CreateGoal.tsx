@@ -71,7 +71,7 @@ async function handleSubmit() {
     status: "active",
     check_ins: [],
     tasks: [],
-    focusSessions: [],
+    focus_sessions: [],
   });
 
   // If Supabase failed to save, don't proceed

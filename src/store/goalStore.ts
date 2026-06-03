@@ -22,7 +22,7 @@ export interface Goal {
   check_ins: CheckIn[];
   notification_id?: string;
   tasks: Task[];
-  focusSessions: FocusSession[];
+  focus_sessions: FocusSession[];
 }
 export interface CheckIn {
   id: string;
@@ -69,7 +69,7 @@ export const useGoalStore = create<GoalStore>()((set) => ({
   fetchGoals: async () => {
     const userId = await getUserId();
     if (!userId) {
-      console.error("No user logged in");
+      // console.error("No user logged in");
       return;
     }
 
@@ -77,8 +77,20 @@ export const useGoalStore = create<GoalStore>()((set) => ({
       .from("goals")
       .select(`*, tasks(*), check_ins(*), focus_sessions(*)`)
       .eq("user_id", userId);
-    if (error) console.error("fetchGoals error:", error);
-    else set({ goals: data as unknown as Goal[] });
+    if (error){
+      console.error("fetchGoals error:", error);
+      return;
+    }
+    const { data: freeSessionsData } = await supabase
+      .from("focus_sessions")
+      .select("*")
+      .eq("user_id", userId)
+      .is("goal_id", null);
+
+    set({
+      goals: data as unknown as Goal[],
+      freeSessions: (freeSessionsData ?? []) as unknown as FocusSession[],
+    });
   },
 
   // Inserts a new goal into Supabase and adds it to local state
@@ -112,7 +124,7 @@ export const useGoalStore = create<GoalStore>()((set) => ({
       ...data,
       check_ins: [],
       tasks: [],
-      focusSessions: [],
+      focus_sessions: [],
     } as unknown as Goal;
     set((state) => ({ goals: [...state.goals, newGoal] }));
     return newGoal;
@@ -258,8 +270,8 @@ export const useGoalStore = create<GoalStore>()((set) => ({
           g.id === session.goal_id
             ? {
                 ...g,
-                focusSessions: [
-                  ...(g.focusSessions ?? []),
+                focus_sessions: [
+                  ...(g.focus_sessions ?? []),
                   data as unknown as FocusSession,
                 ],
               }
