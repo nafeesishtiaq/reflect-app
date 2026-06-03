@@ -3,6 +3,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
+import { cancelGoalNotification } from "@/src/utils/notifications";
 import {
   Platform,
   ScrollView,
@@ -39,7 +40,7 @@ export default function GoalDetail() {
   const [taskTitle, setTaskTitle] = useState("");
   const [taskDate, setTaskDate] = useState(new Date());
   const [showTaskDatePicker, setShowTaskDatePicker] = useState(false);
-
+  const completeGoal = useGoalStore((state) => state.completeGoal);
   async function handleAddTask() {
     if (!taskTitle.trim() || !goal) return;
     await addTask(goal.id, {
@@ -72,7 +73,6 @@ export default function GoalDetail() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scroll}
       >
-
         {/* Goal Header */}
         <View style={styles.goalHeader}>
           <View style={styles.statusRow}>
@@ -250,7 +250,23 @@ export default function GoalDetail() {
           />
           <Text style={styles.checkInBtnText}>Log a Check-in</Text>
         </TouchableOpacity>
-
+        {/* Complete Goal Button */}
+        {goal.status === "active" && (
+          <TouchableOpacity
+            style={styles.completeBtn}
+            onPress={async () => {
+              if (goal.notification_id) {
+                await cancelGoalNotification(goal.notification_id);
+              }
+              await completeGoal(goal.id);
+              router.replace(`/goal/${goal.id}/goalCompleted`);
+            }}
+            activeOpacity={0.85}
+          >
+            <Ionicons name="checkmark-circle-outline" size={18} color="#111" />
+            <Text style={styles.completeBtnText}>Mark as Complete</Text>
+          </TouchableOpacity>
+        )}
         {/* Check-ins Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -593,5 +609,20 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#666",
     lineHeight: 19,
+  },
+  completeBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    paddingVertical: 14,
+    marginBottom: 28,
+    gap: 8,
+  },
+  completeBtnText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#111",
   },
 });
