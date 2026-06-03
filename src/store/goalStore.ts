@@ -48,6 +48,7 @@ export interface FocusSession {
 interface GoalStore {
   goals: Goal[];
   freeSessions: FocusSession[];
+  loading: boolean;
   fetchGoals: () => Promise<void>;
   addGoal: (goal: Omit<Goal, "id">) => Promise<Goal | null>;
   deleteGoal: (id: string) => Promise<void>;
@@ -63,13 +64,15 @@ interface GoalStore {
 export const useGoalStore = create<GoalStore>()((set) => ({
   goals: [],
   freeSessions: [],
-
+  loading: true,
   // Fetches all goals with their related tasks, check_ins, and focus_sessions
   // Called once when the app loads so the store is populated from Supabase
   fetchGoals: async () => {
+    set({ loading: true });
     const userId = await getUserId();
     if (!userId) {
       // console.error("No user logged in");
+      set({ loading: false });
       return;
     }
 
@@ -77,7 +80,7 @@ export const useGoalStore = create<GoalStore>()((set) => ({
       .from("goals")
       .select(`*, tasks(*), check_ins(*), focus_sessions(*)`)
       .eq("user_id", userId);
-    if (error){
+    if (error) {
       console.error("fetchGoals error:", error);
       return;
     }
@@ -90,6 +93,7 @@ export const useGoalStore = create<GoalStore>()((set) => ({
     set({
       goals: data as unknown as Goal[],
       freeSessions: (freeSessionsData ?? []) as unknown as FocusSession[],
+      loading: false,
     });
   },
 

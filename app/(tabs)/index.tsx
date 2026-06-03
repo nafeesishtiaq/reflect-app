@@ -8,12 +8,28 @@ import {
   TouchableOpacity,
   View,
   StatusBar,
+  ActivityIndicator,
 } from "react-native";
 
 export default function Index() {
   const router = useRouter();
+  const loading = useGoalStore((state) => state.loading);
   const goals = useGoalStore((state) => state.goals);
-
+  if (loading) {
+    return (
+      <View
+        style={[
+          styles.container,
+          { alignItems: "center", justifyContent: "center" },
+        ]}
+      >
+        <ActivityIndicator size="large" color="#FF6B35" />
+        <Text style={{ color: "#555", marginTop: 12, fontSize: 14 }}>
+          Loading...
+        </Text>
+      </View>
+    );
+  }
   const activeGoals = goals.filter((g) => g.status === "active").slice(0, 3);
 
   const upcomingTasks = goals
