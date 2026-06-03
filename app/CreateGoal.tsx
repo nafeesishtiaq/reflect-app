@@ -100,9 +100,6 @@ async function handleSubmit() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scroll}
       >
-        <Text style={styles.heading}>New Goal</Text>
-        <Text style={styles.subheading}>What do you want to achieve?</Text>
-
         {/* Title */}
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Goal Title</Text>
@@ -217,19 +214,7 @@ const styles = StyleSheet.create({
   },
   scroll: {
     paddingHorizontal: 20,
-    paddingTop: 60,
-  },
-  heading: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#fff",
-    letterSpacing: -0.5,
-    marginBottom: 6,
-  },
-  subheading: {
-    fontSize: 14,
-    color: "#555",
-    marginBottom: 32,
+    paddingTop: 10,
   },
   fieldGroup: {
     marginBottom: 24,

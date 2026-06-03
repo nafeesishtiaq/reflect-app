@@ -144,13 +144,7 @@ export default function MyGoals() {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>My Goals</Text>
-        <TouchableOpacity
-          style={styles.addBtn}
-          onPress={() => router.push("/CreateGoal")}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="add" size={20} color="#fff" />
-        </TouchableOpacity>
+        
       </View>
 
       {/* Tabs */}
@@ -283,19 +277,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#fff",
     letterSpacing: -0.5,
-  },
-  addBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: ACCENT,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: ACCENT,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 6,
   },
   tabRow: {
     flexDirection: "row",
