@@ -9,7 +9,6 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  Vibration,
   View,
 } from "react-native";
 import Svg, { Circle } from "react-native-svg";
@@ -85,7 +84,6 @@ export default function Pomodoro() {
   useEffect(() => {
     if (secondsLeft === 0 && timerDoneRef.current) {
       timerDoneRef.current = false;
-      Vibration.vibrate([0, 400, 200, 400]);
       const now = new Date();
       savePartialSession(now);
       lastSwitchTimeRef.current = now;
