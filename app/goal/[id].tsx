@@ -5,6 +5,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { cancelGoalNotification } from "@/src/utils/notifications";
 import {
+  Alert,
   Platform,
   ScrollView,
   StatusBar,
@@ -40,7 +41,9 @@ export default function GoalDetail() {
   const [taskTitle, setTaskTitle] = useState("");
   const [taskDate, setTaskDate] = useState(new Date());
   const [showTaskDatePicker, setShowTaskDatePicker] = useState(false);
+  const deleteTask = useGoalStore((state) => state.deleteTask);
   const completeGoal = useGoalStore((state) => state.completeGoal);
+  
   async function handleAddTask() {
     if (!taskTitle.trim() || !goal) return;
     await addTask(goal.id, {
@@ -231,6 +234,9 @@ export default function GoalDetail() {
                     {new Date(task.due_date).toDateString().slice(4, 10)}
                   </Text>
                 </View>
+                <TouchableOpacity onPress={() => deleteTask(goal.id, task.id)}>
+                  <Ionicons name="trash-outline" size={20} color="#333" />
+                </TouchableOpacity>
               </TouchableOpacity>
             ))
           )}
