@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Modal, TouchableWithoutFeedback } from "react-native";
 
 const ACCENT = "#FF6B35";
 
@@ -43,7 +44,9 @@ export default function GoalDetail() {
   const [showTaskDatePicker, setShowTaskDatePicker] = useState(false);
   const deleteTask = useGoalStore((state) => state.deleteTask);
   const completeGoal = useGoalStore((state) => state.completeGoal);
+  const deleteGoal = useGoalStore((state) => state.deleteGoal);
   
+  const [menuVisible, setMenuVisible] = useState(false);
   async function handleAddTask() {
     if (!taskTitle.trim() || !goal) return;
     await addTask(goal.id, {
@@ -54,7 +57,28 @@ export default function GoalDetail() {
     setTaskTitle("");
     setTaskDate(new Date());
   }
-
+  async function handleDelete() {
+    if (!goal) return;
+    setMenuVisible(false);
+    Alert.alert(
+      "Delete Goal",
+      `Delete "${goal.title}"? This can't be undone.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            if (goal.notification_id) {
+              await cancelGoalNotification(goal.notification_id);
+            }
+            deleteGoal(goal.id);
+            router.back();
+          },
+        },
+      ]
+    );
+  }
   if (!goal) {
     return (
       <View style={styles.notFound}>
@@ -101,6 +125,46 @@ export default function GoalDetail() {
                 ? "Due today"
                 : `${days} days left`}
             </Text>
+            <TouchableOpacity
+              onPress={() => setMenuVisible(true)}
+              style={{ marginLeft: "auto" }}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Ionicons name="ellipsis-vertical" size={18} color="#555" />
+            </TouchableOpacity>
+            <Modal
+              visible={menuVisible}
+              transparent
+              animationType="slide"
+              onRequestClose={() => setMenuVisible(false)}
+            >
+              <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
+                <View style={styles.backdrop} />
+              </TouchableWithoutFeedback>
+              <View style={styles.sheet}>
+                <View style={styles.sheetHandle} />
+                <Text style={styles.sheetTitle} numberOfLines={1}>
+                  {goal.title}
+                </Text>
+                <TouchableOpacity
+                  style={styles.sheetItem}
+                  onPress={() => {
+                    setMenuVisible(false);
+                    router.push(`/EditGoal?id=${goal.id}`);
+                  }}
+                >
+                  <Ionicons name="pencil-outline" size={20} color="#ccc" />
+                  <Text style={styles.sheetItemText}>Edit Goal</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity style={styles.sheetItem} onPress={handleDelete}>
+                  <Ionicons name="trash-outline" size={20} color="#ff4444" />
+                  <Text style={[styles.sheetItemText, { color: "#ff4444" }]}>
+                    Delete Goal
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </Modal>
           </View>
 
           <Text style={styles.goalTitle}>{goal.title}</Text>
@@ -630,5 +694,46 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "600",
     color: "#111",
+  },
+  backdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  sheet: {
+    backgroundColor: "#1A1A1A",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+    paddingTop: 12,
+  },
+  sheetHandle: {
+    width: 36,
+    height: 4,
+    backgroundColor: "#333",
+    borderRadius: 2,
+    alignSelf: "center",
+    marginBottom: 16,
+  },
+  sheetTitle: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#555",
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    marginBottom: 16,
+  },
+  sheetItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    paddingVertical: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#222",
+  },
+  sheetItemText: {
+    fontSize: 16,
+    color: "#ccc",
+    fontWeight: "500",
   },
 });

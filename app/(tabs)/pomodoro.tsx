@@ -200,7 +200,7 @@ export default function Pomodoro() {
     })),
   ]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 8);
+    .slice(0, 3);
 
   const totalTodayMins = allSessions
     .filter(
