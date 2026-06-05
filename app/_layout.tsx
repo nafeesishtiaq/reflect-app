@@ -55,7 +55,7 @@ function RootLayoutNav(){
     } else if (user) {
       fetchGoals();
     }
-  }, [user, loading, segments]);
+  }, [user, loading]);
 
   return (
     <Stack>

@@ -4,12 +4,13 @@ import { useState } from "react";
 import {
   Alert,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Switch,
   Text,
   TouchableOpacity,
   View,
-  StatusBar,
+  ActivityIndicator,
 } from "react-native";
 
 const ACCENT = "#FF6B35";
@@ -20,7 +21,8 @@ export default function Profile() {
   // console.log("app metadata:", JSON.stringify(user?.app_metadata));
   // console.log("user:", JSON.stringify(user));
   const [notifications, setNotifications] = useState(true);
-
+  const [signingOut, setSigningOut] = useState(false);
+  
   const name =
     user?.user_metadata?.full_name ?? user?.user_metadata?.name ?? "User";
   const email = user?.email ?? "";
@@ -32,11 +34,25 @@ export default function Profile() {
       {
         text: "Sign Out",
         style: "destructive",
-        onPress: signOut,
+        onPress: async () => {
+          setSigningOut(true);
+          await signOut();
+        },
       },
     ]);
   }
-
+  if (signingOut) {
+    return (
+      <View
+        style={[
+          styles.container,
+          { alignItems: "center", justifyContent: "center" },
+        ]}
+      >
+        <ActivityIndicator size="large" color="#FF6B35" />
+      </View>
+    );
+  }
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
