@@ -8,7 +8,9 @@ GoogleSignin.configure({
 export async function signInWithGoogle() {
   try {
     await GoogleSignin.hasPlayServices();
+    await GoogleSignin.revokeAccess();
     const userInfo = await GoogleSignin.signIn();
+    
     const idToken = userInfo.data?.idToken;
 
     if (!idToken) {
