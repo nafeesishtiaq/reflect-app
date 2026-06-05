@@ -1,15 +1,25 @@
 import { signInWithGoogle } from "@/src/lib/auth";
 import { useRouter } from "expo-router";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useState } from "react";
+import {
+  ActivityIndicator,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const ACCENT = "#FF6B35";
 
 export default function Login() {
   const router = useRouter();
-
+  const [loading, setLoading] = useState(false);
   async function handleGoogleSignIn() {
+    setLoading(true);
     const user = await signInWithGoogle();
-    if (user) router.replace("/(tabs)" as any);
+    if (user) router.replace("/(tabs)");
+    setLoading(false);
   }
 
   return (
@@ -26,11 +36,17 @@ export default function Login() {
           onPress={handleGoogleSignIn}
           activeOpacity={0.85}
         >
-          <Image
-            source={require("../assets/images/google.png")}
-            style={styles.googleIcon}
-          />
-          <Text style={styles.googleBtnText}>Continue with Google</Text>
+          {loading ? (
+            <ActivityIndicator size="small" color="#111" />
+          ) : (
+            <Image
+              source={require("../assets/images/google.png")}
+              style={styles.googleIcon}
+            />
+          )}
+          <Text style={styles.googleBtnText}>
+            {loading ? "Signing in..." : "Continue with Google"}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -89,7 +105,7 @@ const styles = StyleSheet.create({
   googleBtnText: {
     color: "#111",
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: "600",
   },
   terms: {
     fontSize: 11,

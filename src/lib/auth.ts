@@ -1,4 +1,7 @@
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import {
+  GoogleSignin,
+  statusCodes,
+} from "@react-native-google-signin/google-signin";
 import { supabase } from "./supabase";
 
 GoogleSignin.configure({
@@ -8,13 +11,32 @@ GoogleSignin.configure({
 export async function signInWithGoogle() {
   try {
     await GoogleSignin.hasPlayServices();
-    await GoogleSignin.revokeAccess();
-    const userInfo = await GoogleSignin.signIn();
-    
-    const idToken = userInfo.data?.idToken;
+    try {
+      await GoogleSignin.signOut();
+      await GoogleSignin.revokeAccess();
+    } catch (_) {}
+
+    let userInfo;
+    try {
+      userInfo = await GoogleSignin.signIn();
+    } catch (e: any) {
+      if (
+        e.code === statusCodes.SIGN_IN_REQUIRED ||
+        e.message === "SIGN_IN_REQUIRED"
+      ) {
+        try {
+          await GoogleSignin.signOut();
+        } catch (_) {}
+        userInfo = await GoogleSignin.signIn();
+      } else {
+        throw e;
+      }
+    }
+
+    const idToken = userInfo?.data?.idToken;
 
     if (!idToken) {
-      console.error("No id token");
+      // console.error("No id token");
       return null;
     }
 
