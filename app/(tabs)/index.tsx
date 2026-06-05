@@ -101,15 +101,17 @@ export default function Index() {
               <Text style={styles.sectionTitle}>Your Goals</Text>
             </View>
             <TouchableOpacity
-              onPress={() => router.push("/(tabs)/mygoals" as any)}
+              onPress={() => router.push("/(tabs)/mygoals")}
             >
-              <Text style={styles.seeAll}>See all ↗</Text>
+              <Text style={styles.seeAll}>See all</Text>
             </TouchableOpacity>
           </View>
 
           {activeGoals.length === 0 ? (
             <View style={styles.emptyCard}>
-              <Text style={styles.emptyText}>You haven't set any goals yet.</Text>
+              <Text style={styles.emptyText}>
+                You haven't set any goals yet.
+              </Text>
               <TouchableOpacity onPress={() => router.push("/CreateGoal")}>
                 <Text style={styles.emptyAction}>Create your first goal →</Text>
               </TouchableOpacity>
@@ -173,6 +175,9 @@ export default function Index() {
               />
               <Text style={styles.sectionTitle}>Tasks</Text>
             </View>
+            <TouchableOpacity onPress={() => router.push("/tasks")}>
+              <Text style={styles.seeAll}>See all</Text>
+            </TouchableOpacity>
           </View>
 
           {upcomingTasks.length === 0 ? (

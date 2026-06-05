@@ -97,6 +97,14 @@ function RootLayoutNav(){
         name="goal/[id]/goalCompleted"
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name="tasks"
+        options={{
+          title: "All Tasks",
+          headerStyle: { backgroundColor: "#111111" },
+          headerTintColor: "#fff",
+        }}
+      />
     </Stack>
   );
 }

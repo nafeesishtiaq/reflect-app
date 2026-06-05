@@ -213,14 +213,7 @@ export const useGoalStore = create<GoalStore>()((set) => ({
     const goal = useGoalStore.getState().goals.find((g) => g.id === goalId);
     const task = goal?.tasks.find((t) => t.id === taskId);
     if (!task) return;
-
-    const { error } = await supabase
-      .from("tasks")
-      .update({ completed: !task.completed })
-      .eq("id", taskId);
-    if (error) console.error("toggleTask error:", error);
-    else
-      set((state) => ({
+    set((state) => ({
         goals: state.goals.map((g) =>
           g.id === goalId
             ? {
@@ -232,6 +225,13 @@ export const useGoalStore = create<GoalStore>()((set) => ({
             : g
         ),
       }));
+    const { error } = await supabase
+      .from("tasks")
+      .update({ completed: !task.completed })
+      .eq("id", taskId);
+    if (error) console.error("toggleTask error:", error);
+    
+      
   },
 
   // Deletes task from Supabase, removes it from local state
