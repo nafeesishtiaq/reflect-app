@@ -105,6 +105,10 @@ function RootLayoutNav(){
           headerTintColor: "#fff",
         }}
       />
+      <Stack.Screen
+        name="goal/[id]/goalCreated"
+        options={{ headerShown: false }}
+      />
     </Stack>
   );
 }

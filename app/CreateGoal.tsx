@@ -94,7 +94,7 @@ async function handleSubmit() {
   // Save the notification id back to this goal in Supabase
   await updateGoal(saved.id, { notification_id });
 
-  router.replace(`/goal/${saved.id}`);
+  router.replace(`/goal/${saved.id}/goalCreated`);
 }
   return (
     <View style={styles.container}>
