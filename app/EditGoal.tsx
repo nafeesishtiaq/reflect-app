@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   View,
   StatusBar,
+  ActivityIndicator
 } from "react-native";
 
 interface FormState {
@@ -31,7 +32,7 @@ export default function EditGoal() {
   const goal = useGoalStore((state) => state.goals.find((g) => g.id === id));
   const updateGoal = useGoalStore((state) => state.updateGoal);
   const router = useRouter();
-
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState<FormState>({
     title: "",
     description: "",
@@ -60,6 +61,7 @@ export default function EditGoal() {
   }
 
   async function handleSave() {
+    if (submitting) return;
     if (!form.title.trim()) {
       Alert.alert("Missing title", "Please enter a goal title.");
       return;
@@ -79,6 +81,7 @@ export default function EditGoal() {
     if (goal.notification_id) {
       await cancelGoalNotification(goal.notification_id);
     }
+    setSubmitting(true);
     const notification_id = await scheduleGoalNotification(
       goal.id,
       form.title.trim(),
@@ -209,11 +212,16 @@ export default function EditGoal() {
         </View>
 
         <TouchableOpacity
-          style={styles.submitButton}
+          style={[styles.submitButton, submitting && { opacity: 0.7 }]}
           onPress={handleSave}
+          disabled={submitting}
           activeOpacity={0.85}
         >
-          <Text style={styles.submitText}>Save Changes</Text>
+          {submitting ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.submitText}>Save Changes</Text>
+          )}
         </TouchableOpacity>
 
         <View style={{ height: 40 }} />

@@ -14,6 +14,7 @@ import {
   TouchableOpacity,
   View,
   StatusBar,
+  ActivityIndicator,
 } from "react-native";
 
 interface FormState {
@@ -35,7 +36,7 @@ export default function CreateGoal() {
     reminderInterval: "",
   });
   const [showDatePicker, setShowDatePicker] = useState(false);
-
+  const [submitting, setSubmitting] = useState(false);
   const addGoal = useGoalStore((state) => state.addGoal);
   const updateGoal = useGoalStore((state) => state.updateGoal);
   const router = useRouter();
@@ -45,6 +46,7 @@ export default function CreateGoal() {
   }
 
 async function handleSubmit() {
+  if (submitting) return;
   if (!form.title.trim()) {
     Alert.alert("Missing title", "Please enter a goal title.");
     return;
@@ -57,7 +59,7 @@ async function handleSubmit() {
     Alert.alert("Missing reminder", "Please enter the number of days.");
     return;
   }
-
+  setSubmitting(true);
   // addGoal now returns the saved goal with the real UUID from Supabase
   const saved = await addGoal({
     title: form.title.trim(),
@@ -77,6 +79,7 @@ async function handleSubmit() {
   // If Supabase failed to save, don't proceed
   if (!saved) {
     Alert.alert("Error", "Failed to create goal. Please try again.");
+    setSubmitting(false);
     return;
   }
 
@@ -194,11 +197,15 @@ async function handleSubmit() {
         </View>
 
         <TouchableOpacity
-          style={styles.submitButton}
+          style={[styles.submitButton, submitting && { opacity: 0.7 }]}
           onPress={handleSubmit}
           activeOpacity={0.85}
         >
-          <Text style={styles.submitText}>Create Goal</Text>
+          {submitting ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.submitText}>Create Goal</Text>
+          )}
         </TouchableOpacity>
 
         <View style={{ height: 40 }} />

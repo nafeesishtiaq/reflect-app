@@ -12,7 +12,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View,ActivityIndicator
 } from "react-native";
 
 const ACCENT = "#FF6B35";
@@ -31,7 +31,7 @@ export default function CheckIn() {
 
   const goal = useGoalStore((state) => state.goals.find((g) => g.id === id));
   const addCheckIn = useGoalStore((state) => state.addCheckIn);
-
+  const [submitting, setSubmitting] = useState(false);
   const [progress, setProgress] = useState<1 | 2 | 3 | 4 | 5>(3);
   const [journal, setJournal] = useState("");
 
@@ -43,7 +43,8 @@ export default function CheckIn() {
     );
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
+    if (submitting) return;
     if (!journal.trim()) {
       Alert.alert(
         "Missing entry",
@@ -51,7 +52,8 @@ export default function CheckIn() {
       );
       return;
     }
-    addCheckIn(id as string, {
+    setSubmitting(true);
+    await addCheckIn(id as string, {
       date: new Date(),
       progress,
       journal: journal.trim(),
@@ -138,12 +140,23 @@ export default function CheckIn() {
 
         {/* Submit */}
         <TouchableOpacity
-          style={styles.submitBtn}
+          style={[styles.submitBtn, submitting && { opacity: 0.7 }]}
           onPress={handleSubmit}
+          disabled={submitting}
           activeOpacity={0.85}
         >
-          <Ionicons name="checkmark-circle-outline" size={18} color="#fff" />
-          <Text style={styles.submitText}>Save Check-in</Text>
+          {submitting ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <>
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={18}
+                color="#fff"
+              />
+              <Text style={styles.submitText}>Save Check-in</Text>
+            </>
+          )}
         </TouchableOpacity>
 
         <View style={{ height: 40 }} />
