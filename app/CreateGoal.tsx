@@ -21,7 +21,7 @@ interface FormState {
   title: string;
   description: string;
   message: string;
-  deadline: Date;
+  deadline: Date | null;
   reminder: string;
   reminderInterval: string;
 }
@@ -31,7 +31,7 @@ export default function CreateGoal() {
     title: "",
     description: "",
     message: "",
-    deadline: new Date(),
+    deadline: null,
     reminder: "daily",
     reminderInterval: "",
   });
@@ -57,6 +57,10 @@ async function handleSubmit() {
   }
   if (form.reminder === "custom" && !form.reminderInterval.trim()) {
     Alert.alert("Missing reminder", "Please enter the number of days.");
+    return;
+  }
+  if (!form.deadline) {
+    Alert.alert("Missing deadline", "Please select a deadline.");
     return;
   }
   setSubmitting(true);
@@ -151,12 +155,12 @@ async function handleSubmit() {
             onPress={() => setShowDatePicker(true)}
           >
             <Text style={styles.dateButtonText}>
-              {form.deadline.toDateString()}
+              {form.deadline ? form.deadline.toDateString() : "Select date"}
             </Text>
           </TouchableOpacity>
           {(showDatePicker || Platform.OS === "ios") && (
             <DateTimePicker
-              value={form.deadline}
+              value={form.deadline ?? new Date()}
               mode="date"
               minimumDate={new Date()}
               display={Platform.OS === "ios" ? "spinner" : "default"}

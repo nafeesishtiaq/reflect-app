@@ -40,7 +40,7 @@ export default function GoalDetail() {
   const router = useRouter();
 
   const [taskTitle, setTaskTitle] = useState("");
-  const [taskDate, setTaskDate] = useState(new Date());
+  const [taskDate, setTaskDate] = useState<Date | null>(null);
   const [showTaskDatePicker, setShowTaskDatePicker] = useState(false);
   const deleteTask = useGoalStore((state) => state.deleteTask);
   const completeGoal = useGoalStore((state) => state.completeGoal);
@@ -52,10 +52,11 @@ export default function GoalDetail() {
     await addTask(goal.id, {
       title: taskTitle.trim(),
       completed: false,
-      due_date: taskDate,
+      due_date: taskDate ?? new Date(),
     });
     setTaskTitle("");
     setTaskDate(new Date());
+    setTaskDate(null); 
   }
   async function handleDelete() {
     if (!goal) return;
@@ -99,6 +100,7 @@ export default function GoalDetail() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scroll}
+        keyboardShouldPersistTaps="handled"
       >
         {/* Goal Header */}
         <View style={styles.goalHeader}>
@@ -156,8 +158,11 @@ export default function GoalDetail() {
                   <Ionicons name="pencil-outline" size={20} color="#ccc" />
                   <Text style={styles.sheetItemText}>Edit Goal</Text>
                 </TouchableOpacity>
-                
-                <TouchableOpacity style={styles.sheetItem} onPress={handleDelete}>
+
+                <TouchableOpacity
+                  style={styles.sheetItem}
+                  onPress={handleDelete}
+                >
                   <Ionicons name="trash-outline" size={20} color="#ff4444" />
                   <Text style={[styles.sheetItemText, { color: "#ff4444" }]}>
                     Delete Goal
@@ -236,7 +241,9 @@ export default function GoalDetail() {
             >
               <Ionicons name="calendar-outline" size={14} color="#888" />
               <Text style={styles.datePickerText}>
-                {taskDate.toDateString().slice(4, 10)}
+                {taskDate
+                  ? taskDate.toDateString().slice(4, 10)
+                  : "Select date"}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -253,7 +260,7 @@ export default function GoalDetail() {
 
           {(showTaskDatePicker || Platform.OS === "ios") && (
             <DateTimePicker
-              value={taskDate}
+              value={taskDate ?? new Date()}
               mode="date"
               minimumDate={new Date()}
               display={Platform.OS === "ios" ? "spinner" : "default"}
@@ -268,41 +275,49 @@ export default function GoalDetail() {
           {goal.tasks.length === 0 ? (
             <Text style={styles.emptyText}>No tasks yet.</Text>
           ) : (
-            goal.tasks.map((task) => (
-              <TouchableOpacity
-                key={task.id}
-                style={styles.taskRow}
-                onPress={() => toggleTask(goal.id, task.id)}
-                activeOpacity={0.7}
-              >
-                <View
-                  style={[
-                    styles.checkbox,
-                    task.completed && styles.checkboxDone,
-                  ]}
+            [...goal.tasks]
+              .sort(
+                (a, b) =>
+                  new Date(a.due_date).getTime() -
+                  new Date(b.due_date).getTime()
+              )
+              .map((task) => (
+                <TouchableOpacity
+                  key={task.id}
+                  style={styles.taskRow}
+                  onPress={() => toggleTask(goal.id, task.id)}
+                  activeOpacity={0.7}
                 >
-                  {task.completed && (
-                    <Ionicons name="checkmark" size={12} color="#fff" />
-                  )}
-                </View>
-                <View style={styles.taskInfo}>
-                  <Text
+                  <View
                     style={[
-                      styles.taskTitle,
-                      task.completed && styles.taskTitleDone,
+                      styles.checkbox,
+                      task.completed && styles.checkboxDone,
                     ]}
                   >
-                    {task.title}
-                  </Text>
-                  <Text style={styles.taskDate}>
-                    {new Date(task.due_date).toDateString().slice(4, 10)}
-                  </Text>
-                </View>
-                <TouchableOpacity onPress={() => deleteTask(goal.id, task.id)}>
-                  <Ionicons name="trash-outline" size={20} color="#333" />
+                    {task.completed && (
+                      <Ionicons name="checkmark" size={12} color="#fff" />
+                    )}
+                  </View>
+                  <View style={styles.taskInfo}>
+                    <Text
+                      style={[
+                        styles.taskTitle,
+                        task.completed && styles.taskTitleDone,
+                      ]}
+                    >
+                      {task.title}
+                    </Text>
+                    <Text style={styles.taskDate}>
+                      {new Date(task.due_date).toDateString().slice(4, 10)}
+                    </Text>
+                  </View>
+                  <TouchableOpacity
+                    onPress={() => deleteTask(goal.id, task.id)}
+                  >
+                    <Ionicons name="trash-outline" size={20} color="#333" />
+                  </TouchableOpacity>
                 </TouchableOpacity>
-              </TouchableOpacity>
-            ))
+              ))
           )}
         </View>
 
@@ -546,6 +561,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     backgroundColor: "#222",
     borderRadius: 8,
+    minWidth: 90,
   },
   datePickerText: {
     fontSize: 12,
