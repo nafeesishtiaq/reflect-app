@@ -112,7 +112,7 @@ async function handleSubmit() {
           <Text style={styles.label}>Goal Title</Text>
           <TextInput
             style={styles.input}
-            placeholder="e.g. Spend more time with my mom"
+            placeholder="e.g. I want to be Pilot"
             placeholderTextColor="#444"
             value={form.title}
             onChangeText={(val) => updateForm("title", val)}
@@ -138,7 +138,7 @@ async function handleSubmit() {
           <Text style={styles.label}>Message to Your Future Self</Text>
           <TextInput
             style={[styles.input, styles.multiline]}
-            placeholder="Dear future me, I'm writing this because..."
+            placeholder="I hope you are working hard..."
             placeholderTextColor="#444"
             value={form.message}
             onChangeText={(val) => updateForm("message", val)}

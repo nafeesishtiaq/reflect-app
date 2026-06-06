@@ -125,7 +125,7 @@ export default function CheckIn() {
 
         {/* Journal */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>What's happening?</Text>
+          <Text style={styles.sectionTitle}>Journal Your Progress</Text>
           <TextInput
             style={styles.textInput}
             placeholder="Reflect on your progress, struggles, or wins..."

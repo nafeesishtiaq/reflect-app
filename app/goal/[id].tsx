@@ -208,13 +208,22 @@ export default function GoalDetail() {
             ) : null}
 
             {goal.focus_sessions && goal.focus_sessions.length > 0 && (
-              <View style={styles.metaChip}>
-                <Ionicons name="timer-outline" size={13} color="#555" />
-                <Text style={styles.metaText}>Time spent
+              <View
+                style={[
+                  styles.metaChip,
+                  {
+                    backgroundColor: "rgba(255,107,53,0.1)",
+                    borderWidth: 1,
+                    borderColor: "rgba(255,107,53,0.2)",
+                  },
+                ]}
+              >
+                <Ionicons name="timer-outline" size={13} color={ACCENT} />
+                <Text style={[styles.metaText, { color: ACCENT }]}>
                   {Math.round(
                     goal.focus_sessions.reduce((sum, s) => sum + s.duration, 0)
                   )}
-                  m
+                  m focused
                 </Text>
               </View>
             )}
@@ -512,7 +521,7 @@ const styles = StyleSheet.create({
   },
   motivationText: {
     flex: 1,
-    fontSize: 13,
+    fontSize: 16,
     color: "#999",
     lineHeight: 19,
     fontStyle: "italic",
