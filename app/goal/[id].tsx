@@ -206,6 +206,18 @@ export default function GoalDetail() {
                 <Text style={styles.metaText}>{goal.reminder}</Text>
               </View>
             ) : null}
+
+            {goal.focus_sessions && goal.focus_sessions.length > 0 && (
+              <View style={styles.metaChip}>
+                <Ionicons name="timer-outline" size={13} color="#555" />
+                <Text style={styles.metaText}>Time spent
+                  {Math.round(
+                    goal.focus_sessions.reduce((sum, s) => sum + s.duration, 0)
+                  )}
+                  m
+                </Text>
+              </View>
+            )}
           </View>
         </View>
 
