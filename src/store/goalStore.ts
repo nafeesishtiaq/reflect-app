@@ -1,6 +1,9 @@
 import { supabase } from "@/src/lib/supabase";
 import { create } from "zustand";
-
+import {
+  scheduleTaskNotification,
+  cancelTaskNotification,
+} from "@/src/utils/notifications";
 async function getUserId(): Promise<string | null> {
   const {
     data: { session },
@@ -35,6 +38,7 @@ export interface Task {
   title: string;
   completed: boolean;
   due_date: Date;
+  notification_id?: string;
 }
 
 export interface FocusSession {
@@ -192,20 +196,42 @@ export const useGoalStore = create<GoalStore>()((set) => ({
 
   // Inserts a task linked to the goal, then updates local state
   addTask: async (goalId, task) => {
+    const goal = useGoalStore.getState().goals.find((g) => g.id === goalId);
     const { data, error } = await supabase
       .from("tasks")
       .insert({ goal_id: goalId, title: task.title, due_date: task.due_date })
       .select()
       .single();
-    if (error) console.error("addTask error:", error);
-    else
-      set((state) => ({
-        goals: state.goals.map((g) =>
-          g.id === goalId
-            ? { ...g, tasks: [...g.tasks, data as unknown as Task] }
-            : g
-        ),
-      }));
+    if (error) {
+      console.error("addTask error:", error);
+      return;
+    }
+    const notificationId = await scheduleTaskNotification(
+      data.id,
+      goal?.title ?? "",
+      task.title,
+      new Date(task.due_date)
+    );
+    if (notificationId) {
+      await supabase
+        .from("tasks")
+        .update({ notification_id: notificationId })
+        .eq("id", data.id);
+    }
+
+    set((state) => ({
+      goals: state.goals.map((g) =>
+        g.id === goalId
+          ? {
+              ...g,
+              tasks: [
+                ...g.tasks,
+                { ...data, notification_id: notificationId } as unknown as Task,
+              ],
+            }
+          : g
+      ),
+    }));
   },
 
   // Reads current completed value from local state, flips it in Supabase and locally
@@ -214,28 +240,33 @@ export const useGoalStore = create<GoalStore>()((set) => ({
     const task = goal?.tasks.find((t) => t.id === taskId);
     if (!task) return;
     set((state) => ({
-        goals: state.goals.map((g) =>
-          g.id === goalId
-            ? {
-                ...g,
-                tasks: g.tasks.map((t) =>
-                  t.id === taskId ? { ...t, completed: !t.completed } : t
-                ),
-              }
-            : g
-        ),
-      }));
+      goals: state.goals.map((g) =>
+        g.id === goalId
+          ? {
+              ...g,
+              tasks: g.tasks.map((t) =>
+                t.id === taskId ? { ...t, completed: !t.completed } : t
+              ),
+            }
+          : g
+      ),
+    }));
     const { error } = await supabase
       .from("tasks")
       .update({ completed: !task.completed })
       .eq("id", taskId);
     if (error) console.error("toggleTask error:", error);
-    
-      
   },
 
   // Deletes task from Supabase, removes it from local state
   deleteTask: async (goalId, taskId) => {
+    const goal = useGoalStore.getState().goals.find((g) => g.id === goalId);
+    const task = goal?.tasks.find((t) => t.id === taskId);
+
+    if (task?.notification_id) {
+      await cancelTaskNotification(task.notification_id);
+    }
+
     const { error } = await supabase.from("tasks").delete().eq("id", taskId);
     if (error) console.error("deleteTask error:", error);
     else
@@ -247,7 +278,6 @@ export const useGoalStore = create<GoalStore>()((set) => ({
         ),
       }));
   },
-
   // If session has a goalId it belongs to a goal, otherwise it's a free session
   // Inserts into focus_sessions table and updates the right place in local state
   addFocusSession: async (session) => {

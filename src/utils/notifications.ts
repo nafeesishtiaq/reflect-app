@@ -74,3 +74,35 @@ function getTrigger(
       };
   }
 }
+
+export async function scheduleTaskNotification(
+  taskId: string,
+  goalTitle: string,
+  taskTitle: string,
+  dueDate: Date
+) {
+  const dayBefore = new Date(dueDate);
+  dayBefore.setDate(dayBefore.getDate() - 1);
+  dayBefore.setHours(9, 0, 0, 0);
+
+  // Don't schedule if day before is in the past
+  if (dayBefore.getTime() < Date.now()) return null;
+
+  const notificationId = await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "Task due tomorrow ⏰",
+      body: `${taskTitle} · ${goalTitle}`,
+      data: { taskId },
+    },
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.DATE,
+      date: dayBefore,
+    },
+  });
+
+  return notificationId;
+}
+
+export async function cancelTaskNotification(notificationId: string) {
+  await Notifications.cancelScheduledNotificationAsync(notificationId);
+}
