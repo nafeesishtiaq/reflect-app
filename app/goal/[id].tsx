@@ -14,6 +14,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from "react-native";
 import { Modal, TouchableWithoutFeedback } from "react-native";
 
@@ -45,7 +46,8 @@ export default function GoalDetail() {
   const deleteTask = useGoalStore((state) => state.deleteTask);
   const completeGoal = useGoalStore((state) => state.completeGoal);
   const deleteGoal = useGoalStore((state) => state.deleteGoal);
-  
+  const [completing, setCompleting] = useState(false);
+
   const [menuVisible, setMenuVisible] = useState(false);
   async function handleAddTask() {
     if (!taskTitle.trim() || !goal) return;
@@ -340,16 +342,33 @@ export default function GoalDetail() {
           <TouchableOpacity
             style={styles.completeBtn}
             onPress={async () => {
+              setCompleting(true);
               if (goal.notification_id) {
                 await cancelGoalNotification(goal.notification_id);
               }
+              // Complete all incomplete tasks
+              await Promise.all(
+                goal.tasks
+                  .filter((t) => !t.completed)
+                  .map((t) => toggleTask(goal.id, t.id))
+              );
               await completeGoal(goal.id);
               router.replace(`/goal/${goal.id}/goalCompleted`);
             }}
             activeOpacity={0.85}
           >
-            <Ionicons name="checkmark-circle-outline" size={18} color="#111" />
-            <Text style={styles.completeBtnText}>Mark as Complete</Text>
+            {completing ? (
+              <ActivityIndicator size="small" color="#111" />
+            ) : (
+              <>
+                <Ionicons
+                  name="checkmark-circle-outline"
+                  size={18}
+                  color="#111"
+                />
+                <Text style={styles.completeBtnText}>Mark as Complete</Text>
+              </>
+            )}
           </TouchableOpacity>
         )}
         {/* Check-ins Section */}
