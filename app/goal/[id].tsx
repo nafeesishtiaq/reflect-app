@@ -1,11 +1,13 @@
 import { useGoalStore } from "@/src/store/goalStore";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import { cancelGoalNotification } from "@/src/utils/notifications";
 import { Ionicons } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { cancelGoalNotification } from "@/src/utils/notifications";
 import {
+  ActivityIndicator,
   Alert,
+  Modal,
   Platform,
   ScrollView,
   StatusBar,
@@ -13,10 +15,9 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
-  ActivityIndicator,
 } from "react-native";
-import { Modal, TouchableWithoutFeedback } from "react-native";
 
 const ACCENT = "#FF6B35";
 
@@ -58,7 +59,7 @@ export default function GoalDetail() {
     });
     setTaskTitle("");
     setTaskDate(new Date());
-    setTaskDate(null); 
+    setTaskDate(null);
   }
   async function handleDelete() {
     if (!goal) return;
@@ -106,32 +107,11 @@ export default function GoalDetail() {
       >
         {/* Goal Header */}
         <View style={styles.goalHeader}>
+          {/* Title row with menu button */}
           <View style={styles.statusRow}>
-            <View
-              style={[
-                styles.statusBadge,
-                goal.status === "completed" && styles.statusBadgeDone,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.statusText,
-                  goal.status === "completed" && styles.statusTextDone,
-                ]}
-              >
-                {goal.status === "completed" ? "Completed" : "Active"}
-              </Text>
-            </View>
-            <Text style={styles.deadlineText}>
-              {goal.status === "completed"
-                ? `Due ${new Date(goal.deadline).toDateString().slice(4, 10)}`
-                : days === 0
-                ? "Due today"
-                : `${days} days left`}
-            </Text>
+            <Text style={styles.goalTitle}>{goal.title}</Text>
             <TouchableOpacity
               onPress={() => setMenuVisible(true)}
-              style={{ marginLeft: "auto" }}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <Ionicons name="ellipsis-vertical" size={18} color="#555" />
@@ -174,7 +154,27 @@ export default function GoalDetail() {
             </Modal>
           </View>
 
-          <Text style={styles.goalTitle}>{goal.title}</Text>
+          {/* Deadline + focused time*/}
+          <View style={styles.metaRow}>
+            <Text style={styles.deadlineText}>
+              {goal.status === "completed"
+                ? `Due ${new Date(goal.deadline).toDateString().slice(4, 10)}`
+                : days === 0
+                ? "Due today"
+                : `${days} days left`}
+            </Text>
+            {goal.focus_sessions && goal.focus_sessions.length > 0 && (
+              <>
+                <Text style={styles.metaSeparator}>·</Text>
+                <Text style={styles.deadlineText}>
+                  {Math.round(
+                    goal.focus_sessions.reduce((sum, s) => sum + s.duration, 0)
+                  )}
+                  m focused
+                </Text>
+              </>
+            )}
+          </View>
 
           {goal.description ? (
             <Text style={styles.goalDescription}>{goal.description}</Text>
@@ -182,52 +182,12 @@ export default function GoalDetail() {
 
           {goal.message ? (
             <View style={styles.motivationBox}>
-              <Ionicons
-                name="sparkles-outline"
-                size={14}
-                color={ACCENT}
-                style={{ marginRight: 6 }}
-              />
-              <Text style={styles.motivationText}>{goal.message}</Text>
+              <Text style={styles.motivationLabel}>
+                A message from past you
+              </Text>
+              <Text style={styles.motivationText}>"{goal.message}"</Text>
             </View>
           ) : null}
-
-          {/* Meta row */}
-          <View style={styles.metaRow}>
-            <View style={styles.metaChip}>
-              <Ionicons name="calendar-outline" size={13} color="#555" />
-              <Text style={styles.metaText}>
-                {new Date(goal.deadline).toDateString().slice(4)}
-              </Text>
-            </View>
-            {goal.reminder ? (
-              <View style={styles.metaChip}>
-                <Ionicons name="alarm-outline" size={13} color="#555" />
-                <Text style={styles.metaText}>{goal.reminder}</Text>
-              </View>
-            ) : null}
-
-            {goal.focus_sessions && goal.focus_sessions.length > 0 && (
-              <View
-                style={[
-                  styles.metaChip,
-                  {
-                    backgroundColor: "rgba(255,107,53,0.1)",
-                    borderWidth: 1,
-                    borderColor: "rgba(255,107,53,0.2)",
-                  },
-                ]}
-              >
-                <Ionicons name="timer-outline" size={13} color={ACCENT} />
-                <Text style={[styles.metaText, { color: ACCENT }]}>
-                  {Math.round(
-                    goal.focus_sessions.reduce((sum, s) => sum + s.duration, 0)
-                  )}
-                  m focused
-                </Text>
-              </View>
-            )}
-          </View>
         </View>
 
         {/* Tasks Section */}
@@ -358,6 +318,7 @@ export default function GoalDetail() {
           />
           <Text style={styles.checkInBtnText}>Log a Check-in</Text>
         </TouchableOpacity>
+
         {/* Complete Goal Button */}
         {goal.status === "active" && (
           <TouchableOpacity
@@ -367,7 +328,6 @@ export default function GoalDetail() {
               if (goal.notification_id) {
                 await cancelGoalNotification(goal.notification_id);
               }
-              // Complete all incomplete tasks
               await Promise.all(
                 goal.tasks
                   .filter((t) => !t.completed)
@@ -392,6 +352,7 @@ export default function GoalDetail() {
             )}
           </TouchableOpacity>
         )}
+
         {/* Check-ins Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -412,12 +373,10 @@ export default function GoalDetail() {
           ) : (
             sortedcheck_ins.map((checkIn, index) => (
               <View key={checkIn.id} style={styles.checkInCard}>
-                {/* Timeline line */}
                 {index < sortedcheck_ins.length - 1 && (
                   <View style={styles.timelineLine} />
                 )}
                 <View style={styles.timelineDot} />
-
                 <View style={styles.checkInContent}>
                   <View style={styles.checkInHeader}>
                     <Text style={styles.checkInDate}>
@@ -470,82 +429,74 @@ const styles = StyleSheet.create({
   },
   statusRow: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    marginBottom: 6,
     gap: 10,
-    marginBottom: 10,
-  },
-  statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,107,53,0.15)",
-  },
-  statusBadgeDone: {
-    backgroundColor: "#1E1E1E",
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: ACCENT,
-  },
-  statusTextDone: {
-    color: "#555",
-  },
-  deadlineText: {
-    fontSize: 13,
-    color: "#555",
   },
   goalTitle: {
+    flex: 1,
     fontSize: 26,
     fontWeight: "700",
     color: "#fff",
     letterSpacing: -0.5,
-    marginBottom: 10,
     lineHeight: 32,
-  },
-  goalDescription: {
-    fontSize: 14,
-    color: "#666",
-    lineHeight: 21,
-    marginBottom: 12,
-  },
-  motivationBox: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    backgroundColor: "rgba(255,107,53,0.08)",
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 14,
-    borderLeftWidth: 2,
-    borderLeftColor: ACCENT,
-  },
-  motivationText: {
-    flex: 1,
-    fontSize: 16,
-    color: "#999",
-    lineHeight: 19,
-    fontStyle: "italic",
   },
   metaRow: {
     flexDirection: "row",
-    gap: 10,
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 12,
     flexWrap: "wrap",
   },
-  metaChip: {
-    flexDirection: "row",
+  deadlineText: {
+    fontSize: 12,
+    color: "#555",
+  },
+  metaSeparator: {
+    fontSize: 12,
+    color: "#333",
+    fontWeight: 700,
+  },
+  goalDescription: {
+    marginTop: 20,
+    fontSize: 16,
+    color: "#fff",
+    lineHeight: 24,
+    marginBottom: 12,
+  },
+  motivationBox: {
+    backgroundColor: "#1A1208",
+    borderRadius: 18,
+    padding: 20,
+    marginBottom: 14,
     alignItems: "center",
-    gap: 5,
-    backgroundColor: "#1A1A1A",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#3D2200",
+    borderLeftWidth: 1,
+    borderLeftColor: "#3D2200",
+  },
+  motivationLabel: {
+    fontSize: 10,
+    color: ACCENT,
+    fontWeight: "700",
+    letterSpacing: 1.5,
+    textTransform: "uppercase",
+    marginBottom: 12,
+    opacity: 0.8,
+  },
+  motivationText: {
+    color: "#E8C99A",
+    fontSize: 15,
+    fontStyle: "italic",
+    lineHeight: 24,
+    textAlign: "center",
   },
   metaText: {
     fontSize: 12,
     color: "#555",
   },
 
-  // Section
   section: {
     marginBottom: 28,
   },

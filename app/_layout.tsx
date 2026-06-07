@@ -4,22 +4,13 @@ import * as Notifications from "expo-notifications";
 import { requestPermissions } from "@/src/utils/notifications";
 import { useGoalStore } from "@/src/store/goalStore";
 import { AuthProvider, useAuth } from "@/src/context/AuthContext";
-import * as SplashScreen from "expo-splash-screen";
 import { View } from "react-native";
-
-SplashScreen.preventAutoHideAsync();
 
 function RootLayoutNav() {
   const router = useRouter();
   const segments = useSegments();
   const { user, loading } = useAuth();
   const fetchGoals = useGoalStore((state) => state.fetchGoals);
-
-  useEffect(() => {
-    if (!loading) {
-      SplashScreen.hideAsync();
-    }
-  }, [loading]);
 
   useEffect(() => {
     if (loading) return;
