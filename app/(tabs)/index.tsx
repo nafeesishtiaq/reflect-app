@@ -273,9 +273,11 @@ export default function Index() {
                   />
                   <Text style={styles.sectionTitle}>Tasks</Text>
                 </View>
-                <TouchableOpacity onPress={() => router.push("/tasks")}>
-                  <Text style={styles.seeAll}>See all</Text>
-                </TouchableOpacity>
+                {upcomingTasks.length > 0 && (
+                  <TouchableOpacity onPress={() => router.push("/tasks")}>
+                    <Text style={styles.seeAll}>See all</Text>
+                  </TouchableOpacity>
+                )}
               </View>
 
               {upcomingTasks.length === 0 ? (

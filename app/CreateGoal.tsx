@@ -5,16 +5,16 @@ import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Platform,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-  StatusBar,
-  ActivityIndicator,
 } from "react-native";
 
 interface FormState {
@@ -45,61 +45,61 @@ export default function CreateGoal() {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-async function handleSubmit() {
-  if (submitting) return;
-  if (!form.title.trim()) {
-    Alert.alert("Missing title", "Please enter a goal title.");
-    return;
-  }
-  if (!form.message.trim()) {
-    Alert.alert("Missing message", "Please write a message to yourself.");
-    return;
-  }
-  if (form.reminder === "custom" && !form.reminderInterval.trim()) {
-    Alert.alert("Missing reminder", "Please enter the number of days.");
-    return;
-  }
-  if (!form.deadline) {
-    Alert.alert("Missing deadline", "Please select a deadline.");
-    return;
-  }
-  setSubmitting(true);
-  // addGoal now returns the saved goal with the real UUID from Supabase
-  const saved = await addGoal({
-    title: form.title.trim(),
-    description: form.description.trim(),
-    message: form.message.trim(),
-    deadline: form.deadline,
-    reminder: form.reminder,
-    reminder_interval:
-      form.reminder === "custom" ? Number(form.reminderInterval) : undefined,
-    created_at: new Date(),
-    status: "active",
-    check_ins: [],
-    tasks: [],
-    focus_sessions: [],
-  });
+  async function handleSubmit() {
+    if (submitting) return;
+    if (!form.title.trim()) {
+      Alert.alert("Missing title", "Please enter a goal title.");
+      return;
+    }
+    if (!form.message.trim()) {
+      Alert.alert("Missing message", "Please write a message to yourself.");
+      return;
+    }
+    if (form.reminder === "custom" && !form.reminderInterval.trim()) {
+      Alert.alert("Missing reminder", "Please enter the number of days.");
+      return;
+    }
+    if (!form.deadline) {
+      Alert.alert("Missing deadline", "Please select a deadline.");
+      return;
+    }
+    setSubmitting(true);
+    // addGoal now returns the saved goal with the real UUID from Supabase
+    const saved = await addGoal({
+      title: form.title.trim(),
+      description: form.description.trim(),
+      message: form.message.trim(),
+      deadline: form.deadline,
+      reminder: form.reminder,
+      reminder_interval:
+        form.reminder === "custom" ? Number(form.reminderInterval) : undefined,
+      created_at: new Date(),
+      status: "active",
+      check_ins: [],
+      tasks: [],
+      focus_sessions: [],
+    });
 
-  // If Supabase failed to save, don't proceed
-  if (!saved) {
-    Alert.alert("Error", "Failed to create goal. Please try again.");
-    setSubmitting(false);
-    return;
+    // If Supabase failed to save, don't proceed
+    if (!saved) {
+      Alert.alert("Error", "Failed to create goal. Please try again.");
+      setSubmitting(false);
+      return;
+    }
+
+    // Use the real UUID returned by Supabase for notifications and navigation
+    const notification_id = await scheduleGoalNotification(
+      saved.id,
+      form.title.trim(),
+      form.reminder,
+      form.reminder === "custom" ? Number(form.reminderInterval) : undefined
+    );
+
+    // Save the notification id back to this goal in Supabase
+    await updateGoal(saved.id, { notification_id });
+
+    router.replace(`/goal/${saved.id}/goalCreated`);
   }
-
-  // Use the real UUID returned by Supabase for notifications and navigation
-  const notification_id = await scheduleGoalNotification(
-    saved.id,
-    form.title.trim(),
-    form.reminder,
-    form.reminder === "custom" ? Number(form.reminderInterval) : undefined
-  );
-
-  // Save the notification id back to this goal in Supabase
-  await updateGoal(saved.id, { notification_id });
-
-  router.replace(`/goal/${saved.id}/goalCreated`);
-}
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
@@ -112,7 +112,7 @@ async function handleSubmit() {
           <Text style={styles.label}>Goal Title</Text>
           <TextInput
             style={styles.input}
-            placeholder="e.g. I want to be Pilot"
+            placeholder="e.g. Learn to play the guitar"
             placeholderTextColor="#444"
             value={form.title}
             onChangeText={(val) => updateForm("title", val)}
@@ -138,7 +138,7 @@ async function handleSubmit() {
           <Text style={styles.label}>Message to Your Future Self</Text>
           <TextInput
             style={[styles.input, styles.multiline]}
-            placeholder="I hope you are working hard..."
+            placeholder="e.g. Remember why you started. Don't give up."
             placeholderTextColor="#444"
             value={form.message}
             onChangeText={(val) => updateForm("message", val)}

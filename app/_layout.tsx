@@ -1,33 +1,32 @@
 import { Stack, useRouter, useSegments } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import * as Notifications from "expo-notifications";
 import { requestPermissions } from "@/src/utils/notifications";
 import { useGoalStore } from "@/src/store/goalStore";
 import { AuthProvider, useAuth } from "@/src/context/AuthContext";
+import * as SplashScreen from "expo-splash-screen";
+import { View } from "react-native";
 
-function RootLayoutNav(){
+SplashScreen.preventAutoHideAsync();
+
+function RootLayoutNav() {
   const router = useRouter();
   const segments = useSegments();
   const { user, loading } = useAuth();
-
   const fetchGoals = useGoalStore((state) => state.fetchGoals);
 
   useEffect(() => {
+    if (!loading) {
+      SplashScreen.hideAsync();
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    if (loading) return;
     requestPermissions();
+  }, [loading]);
 
-    // Check if user is already logged in when app opens
-    // supabase.auth.getSession().then(({ data: { session } }) => {
-    //   setUser(session?.user ?? null);
-    //   setReady(true);
-    // });
-
-    // Listen for login/logout events
-    // const {
-    //   data: { subscription },
-    // } = supabase.auth.onAuthStateChange((_event, session) => {
-    //   setUser(session?.user ?? null);
-    // });
-
+  useEffect(() => {
     const sub = Notifications.addNotificationResponseReceivedListener(
       (response) => {
         const goalId = response.notification.request.content.data?.goalId;
@@ -36,13 +35,9 @@ function RootLayoutNav(){
         }
       }
     );
-
-    return () => {
-      sub.remove();
-    };
+    return () => sub.remove();
   }, []);
 
-  // Redirect based on auth state
   useEffect(() => {
     if (loading) return;
     const inAuthGroup = segments[0] === "login";
@@ -58,60 +53,63 @@ function RootLayoutNav(){
   }, [user, loading]);
 
   return (
-    <Stack>
-      <Stack.Screen name="login" options={{ headerShown: false }} />
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="CreateGoal"
-        options={{
-          title: "Set Your Goal",
-          headerStyle: { backgroundColor: "#111111" },
-          headerTintColor: "#fff",
-        }}
-      />
-      <Stack.Screen
-        name="EditGoal"
-        options={{
-          title: "Edit Goal",
-          headerStyle: { backgroundColor: "#111111" },
-          headerTintColor: "#fff",
-        }}
-      />
-      <Stack.Screen
-        name="goal/[id]"
-        options={{
-          title: "Goal",
-          headerStyle: { backgroundColor: "#111111" },
-          headerTintColor: "#fff",
-        }}
-      />
-      <Stack.Screen
-        name="goal/[id]/checkin"
-        options={{
-          title: "Check In",
-          headerStyle: { backgroundColor: "#111111" },
-          headerTintColor: "#fff",
-        }}
-      />
-      <Stack.Screen
-        name="goal/[id]/goalCompleted"
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="tasks"
-        options={{
-          title: "All Tasks",
-          headerStyle: { backgroundColor: "#111111" },
-          headerTintColor: "#fff",
-        }}
-      />
-      <Stack.Screen
-        name="goal/[id]/goalCreated"
-        options={{ headerShown: false }}
-      />
-    </Stack>
+    <View style={{ flex: 1 }}>
+      <Stack>
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="CreateGoal"
+          options={{
+            title: "Set Your Goal",
+            headerStyle: { backgroundColor: "#111111" },
+            headerTintColor: "#fff",
+          }}
+        />
+        <Stack.Screen
+          name="EditGoal"
+          options={{
+            title: "Edit Goal",
+            headerStyle: { backgroundColor: "#111111" },
+            headerTintColor: "#fff",
+          }}
+        />
+        <Stack.Screen
+          name="goal/[id]"
+          options={{
+            title: "Goal",
+            headerStyle: { backgroundColor: "#111111" },
+            headerTintColor: "#fff",
+          }}
+        />
+        <Stack.Screen
+          name="goal/[id]/checkin"
+          options={{
+            title: "Check In",
+            headerStyle: { backgroundColor: "#111111" },
+            headerTintColor: "#fff",
+          }}
+        />
+        <Stack.Screen
+          name="goal/[id]/goalCompleted"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="tasks"
+          options={{
+            title: "All Tasks",
+            headerStyle: { backgroundColor: "#111111" },
+            headerTintColor: "#fff",
+          }}
+        />
+        <Stack.Screen
+          name="goal/[id]/goalCreated"
+          options={{ headerShown: false }}
+        />
+      </Stack>
+    </View>
   );
 }
+
 export default function RootLayout() {
   return (
     <AuthProvider>
